@@ -9,9 +9,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - src
-      - Cargo.toml
 jobs:
   test:
     runs-on: ubuntu-latest
