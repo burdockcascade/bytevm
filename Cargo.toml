@@ -1,6 +1,6 @@
 [package]
 name = "bytevm"
-description = "A simple process virtual machine"
+description = "A simple bytecode virtual machine"
 keywords = ["vm", "bytecode", "interpreter"]
 license = "MIT"
 repository = "https://github.com/burdockcascade/bytevm"
@@ -8,7 +8,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-log = "0.4"
-
-[dev-dependencies]
-simplelog = "0.12"
+log = "0.4.26"

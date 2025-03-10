@@ -1,6 +1,3 @@
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
 use std::collections::HashMap;
 use bytevm::program::{Symbol, Instruction, Program};
 use bytevm::variant::Variant;
