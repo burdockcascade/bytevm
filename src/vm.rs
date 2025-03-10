@@ -369,12 +369,12 @@ impl Vm {
                     self.pc += 1;
                 },
 
-                Instruction::Greater => {
+                Instruction::GreaterThan => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b > a));
                     self.pc += 1;
-                },
+                }
 
                 Instruction::LessThan => {
                     let a = frame.pop_operand();

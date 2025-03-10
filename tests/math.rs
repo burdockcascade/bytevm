@@ -188,7 +188,7 @@ fn test_greater_than() {
         instructions: vec![
             Instruction::PushInteger(2),
             Instruction::PushInteger(1),
-            Instruction::Greater,
+            Instruction::GreaterThan,
             Instruction::PushBoolean(true),
             Instruction::Equals,
             Instruction::Halt

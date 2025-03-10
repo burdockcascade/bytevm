@@ -39,7 +39,7 @@ pub enum Instruction {
     Negate,
     LessThan,
     LessEqual,
-    Greater,
+    GreaterThan,
     GreaterEqual,
     NotEqual,
     Or,
