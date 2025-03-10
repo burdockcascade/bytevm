@@ -22,7 +22,7 @@ jobs:
       - name: Publish
         run: cargo publish --dry-run
   release-please:
-    needs: test, publish-dry-run
+    needs: [test, publish-dry-run]
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
