@@ -1,6 +1,4 @@
-| Continuous Integration |  Documentation  |     Crates.io     |              License               |
-|:----------------------:|:---------------:|:-----------------:|:----------------------------------:|
-|     [![ci][1]][2]      | [![docs][5]][6] | [![crates][7]][8] | [![license-mit-badge][]](#license) |
+[![ci][1]][2] [![docs][5]][6] [![crates][7]][8] [![license-mit-badge][]](#license)
 
 [1]: https://github.com/burdockcascade/bytevm/actions/workflows/ci.yml/badge.svg?branch=master
 [2]: https://github.com/burdockcascade/bytevm/actions/workflows/ci.yml
