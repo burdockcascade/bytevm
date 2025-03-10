@@ -1,0 +1,11 @@
+[package]
+name = "bytevm"
+description = "A simple process virtual machine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log = "0.4"
+
+[dev-dependencies]
+simplelog = "0.12"
