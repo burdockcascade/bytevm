@@ -7,7 +7,7 @@ fn test_create_dictionary() {
 
     let key1 = String::from("key1");
     let key2 = 4;
-    let key3 = String::from("key3");
+    let key3 = true;
 
     let program = Program {
         instructions: vec![
@@ -17,11 +17,11 @@ fn test_create_dictionary() {
             Instruction::PushInteger(1),
 
             // second entry, 7 = 2
-            Instruction::PushInteger(7),
+            Instruction::PushInteger(key2),
             Instruction::PushInteger(2),
 
             // third entry. true = 3
-            Instruction::PushBoolean(true),
+            Instruction::PushBoolean(key3),
             Instruction::PushInteger(3),
 
             // Create dictionary
@@ -39,8 +39,8 @@ fn test_create_dictionary() {
         Variant::Dictionary(array) => {
             assert_eq!(array.borrow().len(), 3);
             assert_eq!(array.borrow().get(&Variant::String(key1)), Some(&Variant::Integer(1)));
-            assert_eq!(array.borrow().get(&Variant::Integer(7)), Some(&Variant::Integer(2)));
-            assert_eq!(array.borrow().get(&Variant::Boolean(true)), Some(&Variant::Integer(3)));
+            assert_eq!(array.borrow().get(&Variant::Integer(key2)), Some(&Variant::Integer(2)));
+            assert_eq!(array.borrow().get(&Variant::Boolean(key3)), Some(&Variant::Integer(3)));
         }
         _ => panic!("Expected table")
     }
