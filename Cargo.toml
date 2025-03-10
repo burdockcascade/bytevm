@@ -1,6 +1,9 @@
 [package]
 name = "bytevm"
 description = "A simple process virtual machine"
+keywords = ["vm", "bytecode", "interpreter"]
+license = "MIT"
+repository = "https://github.com/burdockcascade/bytevm"
 version = "0.1.0"
 edition = "2024"
 
