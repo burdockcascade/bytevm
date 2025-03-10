@@ -15,7 +15,12 @@ jobs:
         run: cargo install cargo-tarpaulin
       - name: Test
         run: cargo tarpaulin --out Xml
-  test:
+      - name: Upload
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./target/debug/tarpaulin-report.xml
+  cargo-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,10 +34,3 @@ jobs:
         run: cargo login ${{ secrets.CRATES_IO_API_TOKEN }}
       - name: Publish
         run: cargo publish --dry-run
-  release-please:
-    needs: [test, publish-dry-run]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: googleapis/release-please-action@v4
-        with:
-          release-type: rust
