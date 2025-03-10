@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::Vm;
+use bytevm::vm::{Vm, VmOptions};
 
 #[test]
 fn test_add_and_compare() {
@@ -21,8 +21,8 @@ fn test_add_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(1));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(1));
 
 }
 
@@ -45,6 +45,6 @@ fn test_overwrite_local() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(2));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(2));
 }

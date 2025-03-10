@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::Vm;
+use bytevm::vm::{Vm, VmOptions};
 
 #[test]
 fn test_jump() {
@@ -16,8 +16,8 @@ fn test_jump() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(3));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(3));
 }
 
 #[test]
@@ -34,8 +34,8 @@ fn test_jump_if_false() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(2));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(2));
 }
 
 #[test]
@@ -52,8 +52,8 @@ fn test_dont_jump_if_true() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(1));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(1));
 }
 
 #[test]
@@ -93,6 +93,6 @@ fn test_for_i_loop() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Integer(10));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(10));
 }

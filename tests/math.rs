@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::Vm;
+use bytevm::vm::{Vm, VmOptions};
 
 #[test]
 fn test_add_and_compare() {
@@ -16,8 +16,8 @@ fn test_add_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 
 }
 
@@ -35,8 +35,8 @@ fn test_add_and_compare_false() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(false));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(false));
 }
 
 #[test]
@@ -53,8 +53,8 @@ fn test_sub_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -71,8 +71,8 @@ fn test_mul_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -89,8 +89,8 @@ fn test_div_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -107,8 +107,8 @@ fn test_mod_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -125,8 +125,8 @@ fn test_pow_and_compare() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -142,8 +142,8 @@ fn test_negate() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -160,8 +160,8 @@ fn test_less_than() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -178,8 +178,8 @@ fn test_less_than_or_equal() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -196,8 +196,8 @@ fn test_greater_than() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -214,8 +214,8 @@ fn test_greater_than_or_equal() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }
 
 #[test]
@@ -232,6 +232,6 @@ fn test_not_equal() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    assert_eq!(vm.run(None).unwrap().result.unwrap(), Variant::Boolean(true));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Boolean(true));
 }

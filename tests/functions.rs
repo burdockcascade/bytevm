@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use bytevm::program::{Symbol, Instruction, Program};
 use bytevm::variant::Variant;
 use bytevm::vm;
+use bytevm::vm::{Vm, VmOptions};
 
 #[test]
 fn test_user_defined_function() {
@@ -39,8 +40,8 @@ fn test_user_defined_function() {
         ]
     };
 
-    let result = bytevm::run(program).unwrap();
-    assert_eq!(result.result.unwrap(), Variant::Integer(3));
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(3));
 }
 
 #[test]
@@ -65,13 +66,13 @@ fn test_builtin_function() {
         ]
     };
 
-    let mut vm = vm::Vm::new(program);
+    let mut vm = Vm::new(program, VmOptions::default());
     vm.register_native_function(String::from("add"), |args: Vec<Variant>| {
         let a = args[0].clone();
         let b = args[1].clone();
         Some(a + b)
     });
-    let result = vm.run(None);
 
-    assert_eq!(result.unwrap().result.unwrap(), Variant::Integer(3));
+    let result = vm.run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(3));
 }

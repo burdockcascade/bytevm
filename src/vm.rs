@@ -23,6 +23,18 @@ pub enum VmError {
     }
 }
 
+pub struct VmOptions {
+    pub stack_size: usize,
+}
+
+impl Default for VmOptions {
+    fn default() -> Self {
+        VmOptions {
+            stack_size: 16,
+        }
+    }
+}
+
 pub struct Vm {
     pub program: Program,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>,
@@ -32,11 +44,11 @@ pub struct Vm {
 
 impl Vm {
 
-    pub fn new(program: Program) -> Vm {
+    pub fn new(program: Program, vm_options: VmOptions) -> Vm {
         Vm {
             program,
             native_functions: HashMap::new(),
-            stack: Vec::with_capacity(16),
+            stack: Vec::with_capacity(vm_options.stack_size),
             pc: 0,
         }
     }

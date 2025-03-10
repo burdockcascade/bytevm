@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::Vm;
+use bytevm::vm::{Vm, VmOptions};
 
 #[test]
 fn test_create_dictionary() {
@@ -33,8 +33,7 @@ fn test_create_dictionary() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
     match result {
         Variant::Dictionary(array) => {
             assert_eq!(array.borrow().len(), 3);
@@ -74,8 +73,7 @@ fn test_get_dictionary_item() {
         ..Default::default()
     };
 
-    let vm = Vm::new(program);
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(1));
 }
 
