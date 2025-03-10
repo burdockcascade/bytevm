@@ -9,15 +9,19 @@ pub enum Instruction {
     SetLocal(usize),
     GetLocal(usize),
 
+    // Arrays
     CreateArray(usize),
     GetArrayItem,
     SetArrayItem,
 
+    // Dictionaries
     CreateDictionary(usize),
     GetDictionaryItem,
     SetDictionaryItem,
 
+    // Functions
     FunctionCall(String),
+    Return,
 
     // Stack operations
     PushInteger(i64),
@@ -26,6 +30,7 @@ pub enum Instruction {
     PushBoolean(bool),
     PushNull,
 
+    // Arithmetic
     Pop,
     Add,
     Sub,
@@ -33,21 +38,28 @@ pub enum Instruction {
     Div,
     Mod,
     Pow,
+
+    // Comparison
     Equals,
-    Not,
-    Return,
-    Negate,
     LessThan,
     LessEqual,
     GreaterThan,
     GreaterEqual,
     NotEqual,
+
+    // Logical
     Or,
     And,
 
+    // Unary
+    Not,
+    Negate,
+
+    // Jumps
     Jump(usize),
     JumpIfFalse(usize),
 
+    // End of program
     Halt,
     Panic(String)
 }
