@@ -7,6 +7,14 @@ on:
     branches:
       - master
 jobs:
+  code-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: cargo install cargo-tarpaulin
+      - name: Test
+        run: cargo tarpaulin --out Xml
   test:
     runs-on: ubuntu-latest
     steps:
