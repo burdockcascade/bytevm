@@ -340,7 +340,7 @@ impl Vm {
 
                 // Comparison instructions
 
-                Instruction::Equals => {
+                Instruction::Equal => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b == a));

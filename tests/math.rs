@@ -10,7 +10,7 @@ fn test_add_and_compare() {
             Instruction::PushInteger(2),
             Instruction::Add,
             Instruction::PushInteger(3),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -29,7 +29,7 @@ fn test_add_and_compare_false() {
             Instruction::PushInteger(2),
             Instruction::Add,
             Instruction::PushInteger(4),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -47,7 +47,7 @@ fn test_sub_and_compare() {
             Instruction::PushInteger(2),
             Instruction::Sub,
             Instruction::PushInteger(3),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -65,7 +65,7 @@ fn test_mul_and_compare() {
             Instruction::PushInteger(3),
             Instruction::Mul,
             Instruction::PushInteger(6),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -83,7 +83,7 @@ fn test_div_and_compare() {
             Instruction::PushInteger(3),
             Instruction::Div,
             Instruction::PushInteger(2),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -101,7 +101,7 @@ fn test_mod_and_compare() {
             Instruction::PushInteger(3),
             Instruction::Mod,
             Instruction::PushInteger(1),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -119,7 +119,7 @@ fn test_pow_and_compare() {
             Instruction::PushInteger(3),
             Instruction::Pow,
             Instruction::PushInteger(8),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -136,7 +136,7 @@ fn test_negate() {
             Instruction::PushInteger(2),
             Instruction::Negate,
             Instruction::PushInteger(-2),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -154,7 +154,7 @@ fn test_less_than() {
             Instruction::PushInteger(2),
             Instruction::LessThan,
             Instruction::PushBoolean(true),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -172,7 +172,7 @@ fn test_less_than_or_equal() {
             Instruction::PushInteger(1),
             Instruction::LessEqual,
             Instruction::PushBoolean(true),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -190,7 +190,7 @@ fn test_greater_than() {
             Instruction::PushInteger(1),
             Instruction::GreaterThan,
             Instruction::PushBoolean(true),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -208,7 +208,7 @@ fn test_greater_than_or_equal() {
             Instruction::PushInteger(1),
             Instruction::GreaterEqual,
             Instruction::PushBoolean(true),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()
@@ -226,7 +226,7 @@ fn test_not_equal() {
             Instruction::PushInteger(2),
             Instruction::NotEqual,
             Instruction::PushBoolean(true),
-            Instruction::Equals,
+            Instruction::Equal,
             Instruction::Halt
         ],
         ..Default::default()

@@ -40,7 +40,7 @@ pub enum Instruction {
     Pow,
 
     // Comparison
-    Equals,
+    Equal,
     LessThan,
     LessEqual,
     GreaterThan,
