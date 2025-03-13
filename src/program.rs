@@ -61,7 +61,7 @@ pub enum Instruction {
 
     // End of program
     Halt,
-    Panic(String)
+    Panic
 }
 
 #[derive(Debug, Clone)]

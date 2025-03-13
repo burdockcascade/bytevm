@@ -456,10 +456,15 @@ impl Vm {
                     break;
                 },
 
-                Instruction::Panic(message) => {
-                    return Err(VmError::RuntimeError {
-                        message: message.clone()
-                    });
+                Instruction::Panic => {
+                    return match frame.pop_operand() {
+                        Variant::String(message) => Err(VmError::RuntimeError {
+                            message: message.clone()
+                        }),
+                        _ => Err(VmError::RuntimeError {
+                            message: "Panic message must be a string".to_string()
+                        })
+                    };
                 }
 
             }
