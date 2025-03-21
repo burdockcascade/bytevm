@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Mul, Neg, Not, Rem, Sub};
 use std::rc::Rc;
@@ -25,6 +26,41 @@ impl Variant {
             (Variant::Integer(lhs), Variant::Integer(rhs)) => Variant::Integer(lhs.pow(*rhs as u32)),
             (Variant::Float(lhs), Variant::Float(rhs)) => Variant::Float(lhs.powf(*rhs)),
             _ => panic!("Invalid operands for exponentiation")
+        }
+    }
+}
+
+impl Display for Variant {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Variant::Null => write!(f, "null"),
+            Variant::Integer(i) => write!(f, "{}", i),
+            Variant::Float(fl) => write!(f, "{}", fl),
+            Variant::String(s) => write!(f, "{}", s),
+            Variant::Boolean(b) => write!(f, "{}", b),
+            Variant::Identifier(s) => write!(f, "{}", s),
+            Variant::Array(a) => {
+                let a = a.borrow();
+                write!(f, "[")?;
+                for (i, v) in a.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{}", v)?;
+                }
+                write!(f, "]")
+            },
+            Variant::Dictionary(d) => {
+                let d = d.borrow();
+                write!(f, "{{")?;
+                for (i, (k, v)) in d.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{}: {}", k, v)?;
+                }
+                write!(f, "}}")
+            }
         }
     }
 }
