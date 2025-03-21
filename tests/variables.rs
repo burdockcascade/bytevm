@@ -3,7 +3,7 @@ use bytevm::variant::Variant;
 use bytevm::vm::{Vm, VmOptions};
 
 #[test]
-fn test_add_and_compare() {
+fn test_get_variable() {
     let program = Program {
         instructions: vec![
             // Set local 0
