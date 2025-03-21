@@ -39,6 +39,7 @@ pub struct Vm {
     pub program: Program,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>,
     pub stack: Vec<StackFrame>,
+    options: VmOptions,
     pub pc: usize,
 }
 
@@ -49,6 +50,7 @@ impl Vm {
             program,
             native_functions: HashMap::new(),
             stack: Vec::with_capacity(vm_options.stack_size),
+            options: vm_options,
             pc: 0,
         }
     }
@@ -465,7 +467,7 @@ impl Vm {
                             message: "Panic message must be a string".to_string()
                         })
                     };
-                }
+                },
 
             }
 
