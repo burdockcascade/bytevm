@@ -100,7 +100,7 @@ impl Vm {
                 });
             };
 
-            trace!("=== [PC: {} / {:?}] ===", self.pc, instruction);
+            trace!("=== [F: {}, PC: {}, Ins: {:?}] ===", frame.id, self.pc, instruction);
             trace!("Frame locals -> {:?}", frame.locals);
             trace!("Stack operands -> {:?}", frame.operands);
 
@@ -270,6 +270,13 @@ impl Vm {
 
                 Instruction::FunctionCall(arg_count) => {
 
+                    // Get the function arguments from the stack
+                    let mut args = Vec::with_capacity(*arg_count as usize);
+                    for _ in 0..*arg_count {
+                        args.push(frame.pop_operand());
+                    }
+                    args.reverse();
+
                     // Get the function name from the stack
                     let name = match frame.pop_operand() {
                         Variant::String(name) => name,
@@ -283,18 +290,10 @@ impl Vm {
                             match func {
                                 Symbol::NativeFunction { arity } => {
 
-                                    // Get the function arguments
-                                    let mut args = Vec::with_capacity(*arity as usize);
-                                    for _ in 0..*arity {
-                                        args.push(frame.pop_operand());
-                                    }
-
                                     // pad with nulls if the function expects more arguments
                                     for _ in 0..(*arity - *arg_count) {
                                         args.push(Variant::Null);
                                     }
-
-                                    args.reverse();
 
                                     let function = self.native_functions.get(&name).unwrap();
                                     let result = function(args);
@@ -304,19 +303,20 @@ impl Vm {
                                     self.pc += 1;
                                 },
                                 Symbol::UserDefinedFunction { address, arity } => {
+
+                                    trace!("Calling function '{}' with {} arguments and arity {}", name, arg_count, *arity);
+
+                                    // pad with nulls if the function expects more arguments
+                                    for _ in 0..(*arity - *arg_count) {
+                                        args.push(Variant::Null);
+                                    }
+
                                     let pc = self.pc + 1;
                                     let mut new_frame = StackFrame::new(frame.id + 1);
                                     new_frame.return_address = Some(pc);
 
-                                    // Set the function arguments
-                                    for _ in 0..*arg_count {
-                                        let value = frame.pop_operand();
-                                        new_frame.push_operand(value);
-                                    }
-
-                                    // pad with nulls if the function expects more arguments
-                                    for _ in 0..(*arity - *arg_count) {
-                                        new_frame.push_operand(Variant::Null);
+                                    for arg in args {
+                                        new_frame.push_local(arg);
                                     }
 
                                     self.stack.push(frame);

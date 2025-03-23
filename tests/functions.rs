@@ -24,9 +24,9 @@ fn test_user_defined_function() {
             Instruction::SetLocal(0),
             Instruction::PushInteger(2),
             Instruction::SetLocal(1),
+            Instruction::PushIdentifier(String::from("add")),
             Instruction::GetLocal(0),
             Instruction::GetLocal(1),
-            Instruction::PushIdentifier(String::from("add")),
             Instruction::FunctionCall(2),
             Instruction::Halt,
 
@@ -59,9 +59,9 @@ fn test_builtin_function() {
     let program = Program {
         symbols: functions,
         instructions: vec![
+            Instruction::PushIdentifier(String::from("add")),
             Instruction::PushInteger(1),
             Instruction::PushInteger(2),
-            Instruction::PushIdentifier(String::from("add")),
             Instruction::FunctionCall(2),
             Instruction::Halt
         ]

@@ -26,6 +26,10 @@ impl StackFrame {
         self.operands.push(operand);
     }
 
+    pub fn push_local(&mut self, value: Variant) {
+        self.locals.push(value);
+    }
+
     pub fn get_local(&self, index: usize) -> Variant {
         if index >= self.locals.len() {
             panic!("Local variable not found: {}", index);
