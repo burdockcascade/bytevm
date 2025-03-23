@@ -26,3 +26,37 @@ let program = Program {
     ..Default::default()
 };
 ```
+### Call a function to add two numbers:
+```rust
+let mut functions = HashMap::new();
+functions.insert(String::from("main"), Symbol::UserDefinedFunction {
+    address: 0,
+    arity: 0
+});
+functions.insert(String::from("add"), Symbol::UserDefinedFunction {
+    address: 9,
+    arity: 2
+});
+
+let program = Program {
+    symbols: functions,
+    instructions: vec![
+        // main
+        Instruction::PushInteger(1),
+        Instruction::SetLocal(0),
+        Instruction::PushInteger(2),
+        Instruction::SetLocal(1),
+        Instruction::PushIdentifier(String::from("add")),
+        Instruction::GetLocal(0),
+        Instruction::GetLocal(1),
+        Instruction::FunctionCall(2),
+        Instruction::Halt,
+
+        // add
+        Instruction::GetLocal(1),
+        Instruction::GetLocal(0),
+        Instruction::Add,
+        Instruction::Return
+    ]
+};
+```
