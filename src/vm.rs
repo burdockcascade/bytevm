@@ -10,7 +10,7 @@ use std::rc::Rc;
 #[derive(Debug)]
 pub struct VmExecutionResult {
     pub result: Option<Variant>,
-    pub run_time: f64,
+    pub run_time: u128,
 }
 
 #[derive(Debug)]
@@ -483,7 +483,7 @@ impl Vm {
                 Some(result) => Some(result),
                 None => None
             },
-            run_time: start.elapsed().as_secs_f64()
+            run_time: start.elapsed().as_nanos()
         })
 
     }
