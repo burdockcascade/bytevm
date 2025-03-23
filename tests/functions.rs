@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use bytevm::program::{Symbol, Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm;
 use bytevm::vm::{Vm, VmOptions};
 
 #[test]
