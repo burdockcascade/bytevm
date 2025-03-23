@@ -13,7 +13,7 @@ fn test_user_defined_function() {
         arity: 0
     });
     functions.insert(String::from("add"), Symbol::UserDefinedFunction {
-        address: 8,
+        address: 9,
         arity: 2
     });
 
@@ -27,7 +27,8 @@ fn test_user_defined_function() {
             Instruction::SetLocal(1),
             Instruction::GetLocal(0),
             Instruction::GetLocal(1),
-            Instruction::FunctionCall(String::from("add")),
+            Instruction::PushIdentifier(String::from("add")),
+            Instruction::FunctionCall(2),
             Instruction::Halt,
 
             // add
@@ -61,7 +62,8 @@ fn test_builtin_function() {
         instructions: vec![
             Instruction::PushInteger(1),
             Instruction::PushInteger(2),
-            Instruction::FunctionCall(String::from("add")),
+            Instruction::PushIdentifier(String::from("add")),
+            Instruction::FunctionCall(2),
             Instruction::Halt
         ]
     };

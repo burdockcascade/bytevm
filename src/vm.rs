@@ -136,6 +136,11 @@ impl Vm {
                     self.pc += 1;
                 },
 
+                Instruction::PushIdentifier(value) => {
+                    frame.push_operand(Variant::String(value.clone()));
+                    self.pc += 1;
+                },
+
                 Instruction::PushNull => {
                     frame.push_operand(Variant::Null);
                     self.pc += 1;
@@ -263,17 +268,35 @@ impl Vm {
 
                 // Function calls
 
-                Instruction::FunctionCall(name) => {
-                    match self.program.symbols.get(name) {
+                Instruction::FunctionCall(arg_count) => {
+
+                    // Get the function name from the stack
+                    let name = match frame.pop_operand() {
+                        Variant::String(name) => name,
+                        _ => return Err(VmError::RuntimeError {
+                            message: "Function name must be a string".to_string()
+                        })
+                    };
+
+                    match self.program.symbols.get(&name) {
                         Some(func) => {
                             match func {
                                 Symbol::NativeFunction { arity } => {
-                                    let mut args = Vec::with_capacity(*arity);
+
+                                    // Get the function arguments
+                                    let mut args = Vec::with_capacity(*arity as usize);
                                     for _ in 0..*arity {
                                         args.push(frame.pop_operand());
                                     }
+
+                                    // pad with nulls if the function expects more arguments
+                                    for _ in 0..(*arity - *arg_count) {
+                                        args.push(Variant::Null);
+                                    }
+
                                     args.reverse();
-                                    let function = self.native_functions.get(name).unwrap();
+
+                                    let function = self.native_functions.get(&name).unwrap();
                                     let result = function(args);
                                     if let Some(result) = result {
                                         frame.push_operand(result);
@@ -284,10 +307,18 @@ impl Vm {
                                     let pc = self.pc + 1;
                                     let mut new_frame = StackFrame::new(frame.id + 1);
                                     new_frame.return_address = Some(pc);
-                                    for _ in 0..*arity {
+
+                                    // Set the function arguments
+                                    for _ in 0..*arg_count {
                                         let value = frame.pop_operand();
                                         new_frame.push_operand(value);
                                     }
+
+                                    // pad with nulls if the function expects more arguments
+                                    for _ in 0..(*arity - *arg_count) {
+                                        new_frame.push_operand(Variant::Null);
+                                    }
+
                                     self.stack.push(frame);
                                     frame = new_frame;
                                     self.pc = *address;

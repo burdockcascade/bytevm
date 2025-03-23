@@ -20,7 +20,7 @@ pub enum Instruction {
     SetDictionaryItem,
 
     // Functions
-    FunctionCall(String),
+    FunctionCall(u8),
     Return,
 
     // Stack operations
@@ -28,6 +28,7 @@ pub enum Instruction {
     PushFloat(f64),
     PushString(String),
     PushBoolean(bool),
+    PushIdentifier(String),
     PushNull,
 
     // Arithmetic
@@ -82,10 +83,10 @@ impl Default for Program {
 #[derive(Debug, Clone)]
 pub enum Symbol {
     NativeFunction {
-        arity: usize
+        arity: u8
     },
     UserDefinedFunction {
         address: usize,
-        arity: usize
+        arity: u8
     }
 }
