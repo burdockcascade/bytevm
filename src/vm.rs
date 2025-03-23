@@ -84,9 +84,16 @@ impl Vm {
                     message: format!("Entry point not found: {}", label)
                 })
             },
-            None => {
-                debug!("No entry point specified, using default 0");
-                0
+            None => match self.program.symbols.get("main") {
+                Some(symbol) => match symbol {
+                    Symbol::UserDefinedFunction { address, .. } => *address,
+                    _ => return Err(VmError::RuntimeError {
+                        message: "Main function not found".to_string()
+                    })
+                },
+                None => return Err(VmError::RuntimeError {
+                    message: "Main function not found".to_string()
+                })
             }
         };
 
