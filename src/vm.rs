@@ -314,16 +314,19 @@ impl Vm {
                                     trace!("Calling function '{}' with {} arguments and arity {}", name, arg_count, *arity);
 
                                     // pad with nulls if the function expects more arguments
-                                    for _ in 0..(*arity - *arg_count) {
-                                        args.push(Variant::Null);
+                                    if *arg_count < *arity {
+                                        for _ in 0..(*arity - *arg_count) {
+                                            args.push(Variant::Null);
+                                        }
                                     }
 
                                     let pc = self.pc + 1;
                                     let mut new_frame = StackFrame::new(frame.id + 1);
                                     new_frame.return_address = Some(pc);
 
-                                    for arg in args {
-                                        new_frame.push_local(arg);
+                                    // push only the arguments needed
+                                    for i in 0..*arity {
+                                        new_frame.push_local(args[i].clone());
                                     }
 
                                     self.stack.push(frame);

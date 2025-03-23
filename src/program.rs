@@ -20,7 +20,7 @@ pub enum Instruction {
     SetDictionaryItem,
 
     // Functions
-    FunctionCall(u8),
+    FunctionCall(usize),
     Return,
 
     // Stack operations
@@ -90,10 +90,10 @@ impl Default for Program {
 #[derive(Debug, Clone)]
 pub enum Symbol {
     NativeFunction {
-        arity: u8
+        arity: usize
     },
     UserDefinedFunction {
         address: usize,
-        arity: u8
+        arity: usize
     }
 }
