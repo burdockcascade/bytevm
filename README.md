@@ -11,6 +11,9 @@
 # ByteVM
 ByteVM is a bytecode virtual machine written in Rust. It is designed to execute programs written in a custom bytecode format. The VM is designed to be fast, efficient, and easy to use. It is intended to be used as a platform for implementing programming languages, interpreters, and compilers.
 
+## Status
+ByteVM is currently in the early stages of development. The VM is not yet feature complete, and the API is subject to change. The VM is not yet suitable for production use.
+
 ## Examples
 ### Adding two numbers:
 ```rust
