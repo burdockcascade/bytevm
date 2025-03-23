@@ -73,8 +73,15 @@ pub struct Program {
 
 impl Default for Program {
     fn default() -> Self {
+
+        let mut symbols = HashMap::new();
+        symbols.insert(String::from("main"), Symbol::UserDefinedFunction {
+            address: 0,
+            arity: 0
+        });
+
         Program {
-            symbols: HashMap::new(),
+            symbols,
             instructions: Vec::new()
         }
     }

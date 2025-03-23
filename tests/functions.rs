@@ -31,8 +31,6 @@ fn test_user_defined_function() {
             Instruction::Halt,
 
             // add
-            Instruction::SetLocal(0),
-            Instruction::SetLocal(1),
             Instruction::GetLocal(1),
             Instruction::GetLocal(0),
             Instruction::Add,

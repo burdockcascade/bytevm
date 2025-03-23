@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
 use bytevm::vm::{Vm, VmOptions};
@@ -6,7 +5,6 @@ use bytevm::vm::{Vm, VmOptions};
 #[test]
 fn test_create_array() {
     let program = Program {
-        symbols: HashMap::new(),
         instructions: vec![
             // Create array [1, 2, 3]
             Instruction::PushInteger(1),
@@ -14,7 +12,8 @@ fn test_create_array() {
             Instruction::PushInteger(3),
             Instruction::CreateArray(3),
             Instruction::Return
-        ]
+        ],
+        ..Default::default()
     };
 
     let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
@@ -32,7 +31,6 @@ fn test_create_array() {
 #[test]
 fn test_get_array_element() {
     let program = Program {
-        symbols: HashMap::new(),
         instructions: vec![
             // Create array [1, 2, 3]
             Instruction::PushInteger(1),
@@ -46,7 +44,8 @@ fn test_get_array_element() {
 
             // Return
             Instruction::Return
-        ]
+        ],
+        ..Default::default()
     };
 
     let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
@@ -56,7 +55,6 @@ fn test_get_array_element() {
 #[test]
 fn test_set_array_element() {
     let program = Program {
-        symbols: HashMap::new(),
         instructions: vec![
             // Create array [1, 2, 3]
             Instruction::PushInteger(1),
@@ -78,7 +76,8 @@ fn test_set_array_element() {
 
             // Return
             Instruction::Return
-        ]
+        ],
+        ..Default::default()
     };
 
     let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();

@@ -19,7 +19,7 @@ impl StackFrame {
     }
 
     pub fn pop_operand(&mut self) -> Variant {
-        self.operands.pop().expect("Stack should not be empty")
+        self.operands.pop().expect("Operand stack should not be empty")
     }
 
     pub fn push_operand(&mut self, operand: Variant) {
