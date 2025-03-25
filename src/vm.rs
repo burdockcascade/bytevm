@@ -1,7 +1,6 @@
 use crate::program::{Instruction, Program};
 use crate::stack::StackFrame;
 use crate::variant::Variant;
-use log::{debug, trace};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
