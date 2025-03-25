@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use crate::variant::Variant;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Instruction {
@@ -24,15 +25,10 @@ pub enum Instruction {
     Return,
 
     // Stack operations
-    PushInteger(i64),
-    PushFloat(f64),
-    PushString(String),
-    PushBoolean(bool),
-    PushIdentifier(String),
-    PushNull,
+    Push(Variant),
+    Pop,
 
     // Arithmetic
-    Pop,
     Add,
     Sub,
     Mul,

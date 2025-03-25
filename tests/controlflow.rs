@@ -6,11 +6,11 @@ use bytevm::vm::{Vm, VmOptions};
 fn test_jump() {
     let program = Program {
         instructions: vec![
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::Jump(4),
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(2)),
             Instruction::Return,
-            Instruction::PushInteger(3),
+            Instruction::Push(Variant::Integer(3)),
             Instruction::Return
         ],
         ..Default::default()
@@ -24,11 +24,11 @@ fn test_jump() {
 fn test_jump_if_false() {
     let program = Program {
         instructions: vec![
-            Instruction::PushBoolean(false),
+            Instruction::Push(Variant::Boolean(false)),
             Instruction::JumpIfFalse(4),
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::Return,
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(2)),
             Instruction::Return
         ],
         ..Default::default()
@@ -42,11 +42,11 @@ fn test_jump_if_false() {
 fn test_dont_jump_if_true() {
     let program = Program {
         instructions: vec![
-            Instruction::PushBoolean(true),
+            Instruction::Push(Variant::Boolean(true)),
             Instruction::JumpIfFalse(4),
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::Return,
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(2)),
             Instruction::Return
         ],
         ..Default::default()
@@ -61,11 +61,11 @@ fn test_for_i_loop() {
     let program = Program {
         instructions: vec![
             // Set i = 0
-            Instruction::PushInteger(0),
+            Instruction::Push(Variant::Integer(0)),
             Instruction::SetLocal(0),
 
             // Set max = 10
-            Instruction::PushInteger(10),
+            Instruction::Push(Variant::Integer(10)),
             Instruction::SetLocal(1),
 
             // Evaluate i < max
@@ -78,7 +78,7 @@ fn test_for_i_loop() {
 
             // Increment i
             Instruction::GetLocal(0),
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::Add,
             Instruction::SetLocal(0),
 

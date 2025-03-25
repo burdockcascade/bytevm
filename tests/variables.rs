@@ -7,11 +7,11 @@ fn test_get_variable() {
     let program = Program {
         instructions: vec![
             // Set local 0
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
             
             // Set local 1
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(2)),
             Instruction::SetLocal(1),
             
             // Get local 0
@@ -31,11 +31,11 @@ fn test_overwrite_local() {
     let program = Program {
         instructions: vec![
             // Set local 0
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
 
             // Set local 0
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(2)),
             Instruction::SetLocal(0),
 
             // Get local 0

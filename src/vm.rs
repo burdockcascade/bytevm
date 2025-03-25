@@ -116,33 +116,8 @@ impl Vm {
                     self.pc += 1;
                 },
 
-                Instruction::PushInteger(value) => {
-                    frame.push_operand(Variant::Integer(*value));
-                    self.pc += 1;
-                },
-
-                Instruction::PushFloat(value) => {
-                    frame.push_operand(Variant::Float(*value));
-                    self.pc += 1;
-                },
-
-                Instruction::PushBoolean(value) => {
-                    frame.push_operand(Variant::Boolean(*value));
-                    self.pc += 1;
-                },
-
-                Instruction::PushString(value) => {
-                    frame.push_operand(Variant::String(value.clone()));
-                    self.pc += 1;
-                },
-
-                Instruction::PushIdentifier(value) => {
-                    frame.push_operand(Variant::String(value.clone()));
-                    self.pc += 1;
-                },
-
-                Instruction::PushNull => {
-                    frame.push_operand(Variant::Null);
+                Instruction::Push(value) => {
+                    frame.push_operand(value.clone());
                     self.pc += 1;
                 },
 

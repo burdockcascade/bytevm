@@ -13,16 +13,16 @@ fn test_create_dictionary() {
         instructions: vec![
 
             // first entry, "key1" = 1
-            Instruction::PushString(key1.clone()),
-            Instruction::PushInteger(1),
+            Instruction::Push(Variant::String(key1.clone())),
+            Instruction::Push(Variant::Integer(1)),
 
             // second entry, 7 = 2
-            Instruction::PushInteger(key2),
-            Instruction::PushInteger(2),
+            Instruction::Push(Variant::Integer(key2)),
+            Instruction::Push(Variant::Integer(2)),
 
             // third entry. true = 3
-            Instruction::PushBoolean(key3),
-            Instruction::PushInteger(3),
+            Instruction::Push(Variant::Boolean(key3)),
+            Instruction::Push(Variant::Integer(3)),
 
             // Create dictionary
             Instruction::CreateDictionary(3),
@@ -55,16 +55,16 @@ fn test_get_dictionary_item() {
     let program = Program {
         instructions: vec![
             // Create a dictionary with 3 key-value pairs
-            Instruction::PushString(key1.clone()),
-            Instruction::PushInteger(1),
-            Instruction::PushString(key2.clone()),
-            Instruction::PushInteger(2),
-            Instruction::PushString(key3.clone()),
-            Instruction::PushInteger(3),
+            Instruction::Push(Variant::String(key1.clone())),
+            Instruction::Push(Variant::Integer(1)),
+            Instruction::Push(Variant::String(key2.clone())),
+            Instruction::Push(Variant::Integer(2)),
+            Instruction::Push(Variant::String(key3.clone())),
+            Instruction::Push(Variant::Integer(3)),
             Instruction::CreateDictionary(3),
 
             // Get the value of key2
-            Instruction::PushString(key1.clone()),
+            Instruction::Push(Variant::String(key1)),
             Instruction::GetDictionaryItem,
 
             // Return the value
