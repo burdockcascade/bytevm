@@ -26,7 +26,7 @@ fn test_user_defined_function() {
         instructions: vec![
 
             // main
-            Instruction::Push(Variant::String(fib_func_name.clone())),
+            Instruction::Push(Variant::Identifier(fib_func_name.clone())),
             Instruction::Push(Variant::Integer(input)),
             Instruction::FunctionCall(1),
             Instruction::Return,
@@ -39,12 +39,12 @@ fn test_user_defined_function() {
             Instruction::GetLocal(0),
             Instruction::Return,
             Instruction::Jump(11),
-            Instruction::Push(Variant::String(fib_func_name.clone())),
+            Instruction::Push(Variant::Identifier(fib_func_name.clone())),
             Instruction::GetLocal(0),
             Instruction::Push(Variant::Integer(1)),
             Instruction::Sub,
             Instruction::FunctionCall(1),
-            Instruction::Push(Variant::String(fib_func_name.clone())),
+            Instruction::Push(Variant::Identifier(fib_func_name.clone())),
             Instruction::GetLocal(0),
             Instruction::Push(Variant::Integer(2)),
             Instruction::Sub,

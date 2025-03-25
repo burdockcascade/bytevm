@@ -254,7 +254,7 @@ impl Vm {
 
                     // Get the function name from the stack
                     let name = match frame.pop_operand() {
-                        Variant::String(name) => name,
+                        Variant::Identifier(name) => name,
                         _ => return Err(VmError::RuntimeError {
                             message: "Function name must be a string".to_string()
                         })
