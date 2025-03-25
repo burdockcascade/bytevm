@@ -69,9 +69,6 @@ impl Vm {
             });
         }
 
-        trace!("Executing instructions: {:?}", self.program.instructions);
-        trace!("Symbols: {:?}", self.program.symbols);
-
         self.pc = match entry_point {
             Some(label) => match self.program.symbols.get(&label) {
                 Some(symbol) => match symbol {
@@ -106,10 +103,6 @@ impl Vm {
                     message: "Invalid program counter".to_string()
                 });
             };
-
-            trace!("=== [F: {}, PC: {}, Ins: {:?}] ===", frame.id, self.pc, instruction);
-            trace!("Frame locals -> {:?}", frame.locals);
-            trace!("Stack operands -> {:?}", frame.operands);
 
             match instruction {
 
@@ -311,8 +304,6 @@ impl Vm {
                                 },
                                 Symbol::UserDefinedFunction { address, arity } => {
 
-                                    trace!("Calling function '{}' with {} arguments and arity {}", name, arg_count, *arity);
-
                                     // pad with nulls if the function expects more arguments
                                     if *arg_count < *arity {
                                         for _ in 0..(*arity - *arg_count) {
@@ -512,12 +503,7 @@ impl Vm {
 
             }
 
-            trace!("Frame locals <- {:?}", frame.locals);
-            trace!("Frame operands <- {:?}", frame.operands);
-
         }
-
-        debug!("Program halted");
 
         Ok(VmExecutionResult {
             result: match frame.operands.pop() {
