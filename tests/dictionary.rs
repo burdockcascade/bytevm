@@ -33,7 +33,7 @@ fn test_create_dictionary() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     match result {
         Variant::Dictionary(array) => {
             assert_eq!(array.borrow().len(), 3);
@@ -73,7 +73,7 @@ fn test_get_dictionary_item() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(1));
 }
 

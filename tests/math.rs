@@ -16,7 +16,7 @@ fn test_add_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 
 }
@@ -35,7 +35,7 @@ fn test_add_and_compare_false() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(false));
 }
 
@@ -53,7 +53,7 @@ fn test_sub_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -71,7 +71,7 @@ fn test_mul_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -89,7 +89,7 @@ fn test_div_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -107,7 +107,7 @@ fn test_mod_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -125,7 +125,7 @@ fn test_pow_and_compare() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -142,7 +142,7 @@ fn test_negate() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -160,7 +160,7 @@ fn test_less_than() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -178,7 +178,7 @@ fn test_less_than_or_equal() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -196,7 +196,7 @@ fn test_greater_than() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -214,7 +214,7 @@ fn test_greater_than_or_equal() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }
 
@@ -232,6 +232,6 @@ fn test_not_equal() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Boolean(true));
 }

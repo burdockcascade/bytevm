@@ -15,53 +15,30 @@ ByteVM is a bytecode virtual machine written in Rust. It is designed to execute 
 ByteVM is currently in the early stages of development. The VM is not yet feature complete, and the API is subject to change. The VM is not yet suitable for production use.
 
 ## Examples
-### Adding two numbers:
 ```rust
-let program = Program {
-    instructions: vec![
-        Instruction::PushInteger(1),
-        Instruction::PushInteger(2),
-        Instruction::Add,
-        Instruction::PushInteger(3),
-        Instruction::Equals,
-        Instruction::Return
-    ],
-    ..Default::default()
-};
-```
-### Call a function to add two numbers:
-```rust
-let mut functions = HashMap::new();
-functions.insert(String::from("main"), Symbol::UserDefinedFunction {
-    address: 0,
-    arity: 0
-});
-functions.insert(String::from("add"), Symbol::UserDefinedFunction {
-    address: 9,
-    arity: 2
-});
-
-let program = Program {
-    symbols: functions,
+    let program = Program {
     instructions: vec![
         // main
-        Instruction::PushInteger(1),
+        Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
-        Instruction::PushInteger(2),
+        Instruction::Push(Variant::Integer(2)),
         Instruction::SetLocal(1),
-        Instruction::PushIdentifier(String::from("add")),
+        Instruction::Push(Variant::FunctionPointer(9)),
         Instruction::GetLocal(0),
         Instruction::GetLocal(1),
         Instruction::FunctionCall(2),
         Instruction::Halt,
-
+    
         // add
         Instruction::GetLocal(1),
         Instruction::GetLocal(0),
         Instruction::Add,
         Instruction::Return
-    ]
-};
+    ],
+    ..Default::default()
+    };
+    
+    Vm::new(program, VmOptions::default()).run();
 ```
 
 ## License

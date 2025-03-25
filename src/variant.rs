@@ -26,6 +26,9 @@ pub enum Variant {
     // Identifier is a string that represents the name of a variable or function
     Identifier(String),
 
+    // FunctionPointer is a pointer to a function
+    FunctionPointer(usize),
+
     // Array is a vector of Variants
     Array(Rc<RefCell<Vec<Variant>>>),
 
@@ -76,6 +79,7 @@ impl Display for Variant {
                 }
                 write!(f, "}}")
             }
+            Variant::FunctionPointer(address) => write!(f, "FunctionPointer({})", address)
         }
     }
 }
@@ -174,6 +178,7 @@ impl Hash for Variant {
                     v.hash(state);
                 }
             }
+            Variant::FunctionPointer(address) => address.hash(state)
         }
     }
 }

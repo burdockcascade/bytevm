@@ -21,7 +21,7 @@ fn test_get_variable() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(1));
 
 }
@@ -45,6 +45,6 @@ fn test_overwrite_local() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run(None).unwrap().result.unwrap();
+    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(2));
 }

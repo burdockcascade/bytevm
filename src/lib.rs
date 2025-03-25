@@ -7,5 +7,5 @@ mod stack;
 pub mod program;
 
 pub fn run(program: Program) -> Result<VmExecutionResult, VmError> {
-    Vm::new(program, VmOptions::default()).run(None)
+    Vm::new(program, VmOptions::default()).run()
 }

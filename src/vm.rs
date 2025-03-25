@@ -1,4 +1,4 @@
-use crate::program::{Instruction, Program, Symbol};
+use crate::program::{Instruction, Program};
 use crate::stack::StackFrame;
 use crate::variant::Variant;
 use log::{debug, trace};
@@ -37,7 +37,6 @@ impl Default for VmOptions {
 
 pub struct Vm {
     pub program: Program,
-    native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>,
     pub stack: Vec<StackFrame>,
     options: VmOptions,
     pub pc: usize,
@@ -48,18 +47,14 @@ impl Vm {
     pub fn new(program: Program, vm_options: VmOptions) -> Vm {
         Vm {
             program,
-            native_functions: HashMap::new(),
             stack: Vec::with_capacity(vm_options.stack_size),
             options: vm_options,
             pc: 0,
         }
     }
 
-    pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
-        self.native_functions.insert(name, function);
-    }
 
-    pub fn run(mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
+    pub fn run(mut self) -> Result<VmExecutionResult, VmError> {
 
         let start = std::time::Instant::now();
 
@@ -69,30 +64,8 @@ impl Vm {
             });
         }
 
-        self.pc = match entry_point {
-            Some(label) => match self.program.symbols.get(&label) {
-                Some(symbol) => match symbol {
-                    Symbol::UserDefinedFunction { address, .. } => *address,
-                    _ => return Err(VmError::RuntimeError {
-                        message: format!("Entry point is not a function: {}", label)
-                    })
-                },
-                None => return Err(VmError::RuntimeError {
-                    message: format!("Entry point not found: {}", label)
-                })
-            },
-            None => match self.program.symbols.get("main") {
-                Some(symbol) => match symbol {
-                    Symbol::UserDefinedFunction { address, .. } => *address,
-                    _ => return Err(VmError::RuntimeError {
-                        message: "Main function not found".to_string()
-                    })
-                },
-                None => return Err(VmError::RuntimeError {
-                    message: "Main function not found".to_string()
-                })
-            }
-        };
+        // Set the program counter to the entry point
+        self.pc = self.program.entry_point;
 
         let mut frame = StackFrame::new(0);
 
@@ -253,58 +226,28 @@ impl Vm {
                     args.reverse();
 
                     // Get the function name from the stack
-                    let name = match frame.pop_operand() {
-                        Variant::Identifier(name) => name,
-                        _ => return Err(VmError::RuntimeError {
-                            message: "Function name must be a string".to_string()
-                        })
+                    match frame.pop_operand() {
+                        Variant::FunctionPointer(address) => {
+
+                            // Create a new stack frame
+                            let mut new_frame = StackFrame::new(frame.id + 1);
+                            new_frame.return_address = Some(self.pc + 1);
+
+                            // Push the arguments onto the new stack frame
+                            for arg in args {
+                                new_frame.push_local(arg);
+                            }
+
+                            // Push the new stack frame onto the stack
+                            self.stack.push(frame);
+
+                            // Set the program counter to the function address
+                            frame = new_frame;
+                            self.pc = address;
+                        },
+                        _ => unimplemented!()
                     };
 
-                    match self.program.symbols.get(&name) {
-                        Some(func) => {
-                            match func {
-                                Symbol::NativeFunction { arity } => {
-
-                                    // pad with nulls if the function expects more arguments
-                                    for _ in 0..(*arity - *arg_count) {
-                                        args.push(Variant::Null);
-                                    }
-
-                                    let function = self.native_functions.get(&name).unwrap();
-                                    let result = function(args);
-                                    if let Some(result) = result {
-                                        frame.push_operand(result);
-                                    }
-                                    self.pc += 1;
-                                },
-                                Symbol::UserDefinedFunction { address, arity } => {
-
-                                    // pad with nulls if the function expects more arguments
-                                    if *arg_count < *arity {
-                                        for _ in 0..(*arity - *arg_count) {
-                                            args.push(Variant::Null);
-                                        }
-                                    }
-
-                                    let pc = self.pc + 1;
-                                    let mut new_frame = StackFrame::new(frame.id + 1);
-                                    new_frame.return_address = Some(pc);
-
-                                    // push only the arguments needed
-                                    for i in 0..*arity {
-                                        new_frame.push_local(args[i].clone());
-                                    }
-
-                                    self.stack.push(frame);
-                                    frame = new_frame;
-                                    self.pc = *address;
-                                }
-                            }
-                        },
-                        None => return Err(VmError::RuntimeError {
-                            message: format!("Function not found: {}", name)
-                        })
-                    }
                 },
 
                 Instruction::Return => {
