@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/burdockcascade/bytevm/compare/v0.2.0...v0.3.0) (2025-03-25)
+
+
+### Features
+
+* streamline function call handling ([2277c49](https://github.com/burdockcascade/bytevm/commit/2277c494277010d19ef5241bb8658245f18aab00))
+* unify push instructions to use Variant enum for improved type handling ([7f814ab](https://github.com/burdockcascade/bytevm/commit/7f814ab0b7b6913e3cdce117eb4f5fbde23afed1))
+* update function calls to use Variant::Identifier for consistency ([7e1b340](https://github.com/burdockcascade/bytevm/commit/7e1b34043003f76f4565aca0c30b6a50e1b7c25b))
+
+
+### Bug Fixes
+
+* correct capacity allocation for function call arguments ([3a927ec](https://github.com/burdockcascade/bytevm/commit/3a927ec4e75a6b079409307f95a67b06edef39ca))
+
 ## [0.2.0](https://github.com/burdockcascade/bytevm/compare/v0.1.0...v0.2.0) (2025-03-23)
 
 
