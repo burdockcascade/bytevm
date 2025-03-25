@@ -7,14 +7,29 @@ use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub enum Variant {
+
+    // Null is a null value
     Null,
+
+    // Integer is a 64-bit signed integer
     Integer(i64),
+
+    // Float is a floating point value
     Float(f64),
+
+    // String is a string value
     String(String),
+
+    // Boolean is a boolean value
     Boolean(bool),
+
+    // Identifier is a string that represents the name of a variable or function
     Identifier(String),
 
+    // Array is a vector of Variants
     Array(Rc<RefCell<Vec<Variant>>>),
+
+    // Dictionary is a map of Variants
     Dictionary(Rc<RefCell<HashMap<Variant, Variant>>>),
 
 }
