@@ -246,7 +246,7 @@ impl Vm {
                 Instruction::FunctionCall(arg_count) => {
 
                     // Get the function arguments from the stack
-                    let mut args = Vec::with_capacity(*arg_count as usize);
+                    let mut args = Vec::with_capacity(*arg_count);
                     for _ in 0..*arg_count {
                         args.push(frame.pop_operand());
                     }
