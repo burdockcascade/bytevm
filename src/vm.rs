@@ -245,7 +245,9 @@ impl Vm {
                             frame = new_frame;
                             self.pc = address;
                         },
-                        _ => unimplemented!()
+                        _ => return Err(VmError::RuntimeError {
+                            message: "Expected a function pointer".to_string()
+                        })
                     };
 
                 },
