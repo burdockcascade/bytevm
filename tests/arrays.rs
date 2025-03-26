@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::{Vm, VmOptions};
+use bytevm::runtime::Vm;
 
 #[test]
 fn test_create_array() {
@@ -16,7 +16,10 @@ fn test_create_array() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
+
     match result {
         Variant::Array(array) => {
             assert_eq!(array.borrow().len(), 3);
@@ -48,7 +51,9 @@ fn test_get_array_element() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(2));
 }
 
@@ -80,6 +85,8 @@ fn test_set_array_element() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(4));
 }

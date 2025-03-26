@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::variant::Variant;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -62,15 +63,33 @@ pub enum Instruction {
 
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub entry_point: usize,
+    pub globals: HashMap<String, GlobalEntry>,
     pub instructions: Vec<Instruction>
 }
 
 impl Default for Program {
     fn default() -> Self {
+
+        let mut symbols = HashMap::new();
+        symbols.insert(String::from("main"), GlobalEntry::UserDefinedFunction {
+            address: 0,
+            arity: 0
+        });
+
         Program {
-            entry_point: 0,
+            globals: symbols,
             instructions: Vec::new()
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum GlobalEntry {
+    NativeFunction {
+        arity: usize
+    },
+    UserDefinedFunction {
+        address: usize,
+        arity: usize
     }
 }

@@ -1,6 +1,6 @@
 use bytevm::program::{Instruction, Program};
 use bytevm::variant::Variant;
-use bytevm::vm::{Vm, VmOptions};
+use bytevm::runtime::Vm;
 
 #[test]
 fn test_get_variable() {
@@ -21,7 +21,10 @@ fn test_get_variable() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
+
     assert_eq!(result, Variant::Integer(1));
 
 }
@@ -45,6 +48,9 @@ fn test_overwrite_local() {
         ..Default::default()
     };
 
-    let result = Vm::new(program, VmOptions::default()).run().unwrap().result.unwrap();
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
+
     assert_eq!(result, Variant::Integer(2));
 }

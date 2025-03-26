@@ -1,10 +1,10 @@
-use crate::program::{Instruction, Program};
+use crate::program::{Instruction, Program, GlobalEntry};
 use crate::stack::StackFrame;
 use crate::variant::Variant;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-
+use log::{debug, trace};
 
 #[derive(Debug)]
 pub struct VmExecutionResult {
@@ -22,55 +22,82 @@ pub enum VmError {
     }
 }
 
-pub struct VmOptions {
-    pub stack_size: usize,
+pub struct Vm {
+    instructions: Vec<Instruction>,
+    globals: HashMap<String, GlobalEntry>,
+    native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>,
+    pub stack: Vec<StackFrame>,
+    pub pc: usize,
 }
 
-impl Default for VmOptions {
+impl Default for Vm {
     fn default() -> Self {
-        VmOptions {
-            stack_size: 16,
+        Vm {
+            instructions: Vec::new(),
+            globals: HashMap::new(),
+            native_functions: HashMap::new(),
+            stack: Vec::new(),
+            pc: 0,
         }
     }
-}
-
-pub struct Vm {
-    pub program: Program,
-    pub stack: Vec<StackFrame>,
-    options: VmOptions,
-    pub pc: usize,
 }
 
 impl Vm {
 
-    pub fn new(program: Program, vm_options: VmOptions) -> Vm {
-        Vm {
-            program,
-            stack: Vec::with_capacity(vm_options.stack_size),
-            options: vm_options,
-            pc: 0,
-        }
+    pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
+        self.native_functions.insert(name, function);
+    }
+    
+    pub fn load_program(&mut self, program: Program) {
+
+        debug!("Loaded program with {} instructions and {} globals", program.instructions.len(), program.globals.len());
+        trace!("Instructions: {:?}", program.instructions);
+        trace!("Globals: {:?}", program.globals);
+
+        self.instructions = program.instructions;
+        self.globals = program.globals;
     }
 
-
-    pub fn run(mut self) -> Result<VmExecutionResult, VmError> {
+    pub fn run(mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
 
         let start = std::time::Instant::now();
 
-        if self.program.instructions.is_empty() {
+        if self.instructions.is_empty() {
             return Err(VmError::RuntimeWarning {
                 message: "No instructions found".to_string()
             });
         }
 
-        // Set the program counter to the entry point
-        self.pc = self.program.entry_point;
+        self.pc = match entry_point {
+            Some(label) => match self.globals.get(&label) {
+                Some(symbol) => match symbol {
+                    GlobalEntry::UserDefinedFunction { address, .. } => *address,
+                    _ => return Err(VmError::RuntimeError {
+                        message: format!("Entry point is not a function: {}", label)
+                    })
+                },
+                None => return Err(VmError::RuntimeError {
+                    message: format!("Entry point not found: {}", label)
+                })
+            },
+            None => match self.globals.get("main") {
+                Some(symbol) => match symbol {
+                    GlobalEntry::UserDefinedFunction { address, .. } => *address,
+                    _ => return Err(VmError::RuntimeError {
+                        message: "Main function not found".to_string()
+                    })
+                },
+                None => return Err(VmError::RuntimeError {
+                    message: "Main function not found".to_string()
+                })
+            }
+        };
 
         let mut frame = StackFrame::new(0);
 
         loop {
 
-            let Some(instruction) = &self.program.instructions.get(self.pc) else {
+            let Some(instruction) = &self.instructions.get(self.pc) else {
                 return Err(VmError::RuntimeError {
                     message: "Invalid program counter".to_string()
                 });
@@ -225,30 +252,58 @@ impl Vm {
                     args.reverse();
 
                     // Get the function name from the stack
-                    match frame.pop_operand() {
-                        Variant::FunctionPointer(address) => {
-
-                            // Create a new stack frame
-                            let mut new_frame = StackFrame::new(frame.id + 1);
-                            new_frame.return_address = Some(self.pc + 1);
-
-                            // Push the arguments onto the new stack frame
-                            for arg in args {
-                                new_frame.push_local(arg);
-                            }
-
-                            // Push the new stack frame onto the stack
-                            self.stack.push(frame);
-
-                            // Set the program counter to the function address
-                            frame = new_frame;
-                            self.pc = address;
-                        },
+                    let name = match frame.pop_operand() {
+                        Variant::Identifier(name) => name,
                         _ => return Err(VmError::RuntimeError {
-                            message: "Expected a function pointer".to_string()
+                            message: "Function name must be a string".to_string()
                         })
                     };
 
+                    match self.globals.get(&name) {
+                        Some(func) => {
+                            match func {
+                                GlobalEntry::NativeFunction { arity } => {
+
+                                    // pad with nulls if the function expects more arguments
+                                    for _ in 0..(*arity - *arg_count) {
+                                        args.push(Variant::Null);
+                                    }
+
+                                    let function = self.native_functions.get(&name).unwrap();
+                                    let result = function(args);
+                                    if let Some(result) = result {
+                                        frame.push_operand(result);
+                                    }
+                                    self.pc += 1;
+                                },
+                                GlobalEntry::UserDefinedFunction { address, arity } => {
+
+                                    // pad with nulls if the function expects more arguments
+                                    if *arg_count < *arity {
+                                        for _ in 0..(*arity - *arg_count) {
+                                            args.push(Variant::Null);
+                                        }
+                                    }
+
+                                    let pc = self.pc + 1;
+                                    let mut new_frame = StackFrame::new(frame.id + 1);
+                                    new_frame.return_address = Some(pc);
+
+                                    // push only the arguments needed
+                                    for i in 0..*arity {
+                                        new_frame.push_local(args[i].clone());
+                                    }
+
+                                    self.stack.push(frame);
+                                    frame = new_frame;
+                                    self.pc = *address;
+                                }
+                            }
+                        },
+                        None => return Err(VmError::RuntimeError {
+                            message: format!("Function not found: {}", name)
+                        })
+                    }
                 },
 
                 Instruction::Return => {
