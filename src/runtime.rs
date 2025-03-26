@@ -235,7 +235,7 @@ impl Vm {
                             match table.get(&key) {
                                 Some(value) => value.clone(),
                                 None => return Err(VmError::RuntimeError {
-                                    message: "Key not found".to_string()
+                                    message: format!("Key not found: {:?}", key)
                                 })
                             }
                         },
