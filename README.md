@@ -16,14 +16,25 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 
 ## Examples
 ```rust
-    let program = Program {
+let mut globals = HashMap::new();
+globals.insert(String::from("main"), GlobalEntry::UserDefinedFunction {
+    address: 0,
+    arity: 0
+});
+globals.insert(String::from("add"), GlobalEntry::UserDefinedFunction {
+    address: 9,
+    arity: 2
+});
+
+let program = Program {
+    globals,
     instructions: vec![
         // main
         Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
         Instruction::Push(Variant::Integer(2)),
         Instruction::SetLocal(1),
-        Instruction::Push(Variant::FunctionPointer(9)),
+        Instruction::Push(Variant::Identifier(String::from("add"))),
         Instruction::GetLocal(0),
         Instruction::GetLocal(1),
         Instruction::FunctionCall(2),
@@ -34,11 +45,12 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
         Instruction::GetLocal(0),
         Instruction::Add,
         Instruction::Return
-    ],
-    ..Default::default()
-    };
-    
-    Vm::new(program, VmOptions::default()).run();
+    ]
+};
+
+let mut vm = Vm::default();
+vm.load_program(program);
+vm.run(None);
 ```
 
 ## License
