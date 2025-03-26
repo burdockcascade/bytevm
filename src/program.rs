@@ -56,6 +56,9 @@ pub enum Instruction {
     Jump(usize),
     JumpIfFalse(usize),
 
+    // Output
+    Print,
+
     // End of program
     Halt,
     Panic

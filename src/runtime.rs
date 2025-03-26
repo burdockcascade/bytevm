@@ -460,6 +460,13 @@ impl Vm {
                     self.pc += 1;
                 },
 
+                // Output
+                Instruction::Print => {
+                    let value = frame.pop_operand();
+                    println!("{}", value);
+                    self.pc += 1;
+                },
+
                 Instruction::Halt => {
                     break;
                 },
