@@ -90,3 +90,28 @@ fn test_set_array_element() {
     let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(4));
 }
+
+#[test]
+fn test_get_array_length() {
+    let program = Program {
+        instructions: vec![
+            // Create array [1, 2, 3]
+            Instruction::Push(Variant::Integer(1)),
+            Instruction::Push(Variant::Integer(2)),
+            Instruction::Push(Variant::Integer(3)),
+            Instruction::CreateArray(3),
+
+            // Get array length
+            Instruction::GetArrayLength,
+
+            // Return
+            Instruction::Return
+        ],
+        ..Default::default()
+    };
+
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
+    assert_eq!(result, Variant::Integer(3));
+}
