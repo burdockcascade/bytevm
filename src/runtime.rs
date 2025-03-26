@@ -97,16 +97,19 @@ impl Vm {
 
         loop {
 
+            trace!("[Loop Start]");
+
             let Some(instruction) = &self.instructions.get(self.pc) else {
                 return Err(VmError::RuntimeError {
                     message: "Invalid program counter".to_string()
                 });
             };
 
+            trace!("Stack Counter: {:?}", self.stack.len());
             trace!("Program Counter: {}", self.pc);
             trace!("Executing instruction: {:?}", instruction);
-            trace!("Frame Operands: {:?}", frame.operands);
             trace!("Frame Locals: {:?}", frame.locals);
+            trace!("Frame Operands: {:?}", frame.operands);
 
             match instruction {
 
