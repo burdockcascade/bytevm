@@ -191,7 +191,7 @@ impl Add for Variant {
         match (self, rhs) {
             (Variant::Integer(lhs), Variant::Integer(rhs)) => Variant::Integer(lhs + rhs),
             (Variant::Float(lhs), Variant::Float(rhs)) => Variant::Float(lhs + rhs),
-            (Variant::String(lhs), Variant::String(rhs)) => Variant::String(lhs + &rhs),
+            (Variant::String(lhs), rhs) => Variant::String(lhs + &rhs.to_string()),
             (Variant::Boolean(lhs), Variant::Boolean(rhs)) => Variant::Boolean(lhs && rhs),
             _ => panic!("Invalid operands for addition")
         }
