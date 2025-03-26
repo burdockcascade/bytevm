@@ -263,6 +263,21 @@ impl Vm {
                     self.pc += 1;
                 },
 
+                Instruction::GetDictionaryKeys => {
+                    let table = frame.pop_operand();
+                    let keys = match table {
+                        Variant::Dictionary(table) => {
+                            let table = table.borrow();
+                            table.keys().cloned().collect::<Vec<Variant>>()
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected a dictionary but got {:?}", table)
+                        })
+                    };
+                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
+                    self.pc += 1;
+                },
+
                 // Function calls
 
                 Instruction::FunctionCall(arg_count) => {

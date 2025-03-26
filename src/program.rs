@@ -20,6 +20,7 @@ pub enum Instruction {
     CreateDictionary(usize),
     GetDictionaryItem,
     SetDictionaryItem,
+    GetDictionaryKeys,
 
     // Functions
     FunctionCall(usize),

@@ -167,3 +167,66 @@ fn test_foreach_array_loop() {
 
     assert_eq!(result, Variant::Integer(3));
 }
+
+#[test]
+fn test_foreach_dictionary_loop() {
+
+    let program = Program {
+        instructions: vec![
+            // Create a dictionary with 3 key-value pairs
+            Instruction::Push(Variant::String(String::from("key1"))),
+            Instruction::Push(Variant::Integer(1)),
+            Instruction::Push(Variant::String(String::from("key2"))),
+            Instruction::Push(Variant::Integer(2)),
+            Instruction::Push(Variant::String(String::from("key3"))),
+            Instruction::Push(Variant::Integer(3)),
+            Instruction::CreateDictionary(3),
+            Instruction::SetLocal(0),
+
+            // Set i = 0
+            Instruction::Push(Variant::Integer(0)),
+            Instruction::SetLocal(1),
+
+            // Get the length of the dictionary and store it in max
+            Instruction::GetLocal(0),
+            Instruction::GetDictionaryKeys,
+            Instruction::GetArrayLength,
+            Instruction::SetLocal(2),
+
+            // while i < max
+            Instruction::GetLocal(1), // 14
+            Instruction::GetLocal(2),
+            Instruction::LessThan,
+
+            // Jump if false
+            Instruction::JumpIfFalse(24),
+
+            // Get the dictionary
+            Instruction::GetLocal(0),
+            Instruction::GetLocal(1),
+            Instruction::GetDictionaryItem,
+            Instruction::SetLocal(3),
+
+            // Increment i
+            Instruction::GetLocal(1),
+            Instruction::Push(Variant::Integer(1)),
+            Instruction::Add,
+            Instruction::SetLocal(1),
+
+            // Jump to the beginning
+            Instruction::Jump(10),
+
+            // Return i
+            Instruction::GetLocal(1), // 27
+            Instruction::Return
+
+        ],
+        ..Default::default()
+    };
+
+    let mut vm = Vm::default();
+    vm.load_program(program);
+    let result = vm.run(None).unwrap().result.unwrap();
+
+    assert_eq!(result, Variant::Integer(3));
+}
