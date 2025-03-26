@@ -103,6 +103,11 @@ impl Vm {
                 });
             };
 
+            trace!("Program Counter: {}", self.pc);
+            trace!("Executing instruction: {:?}", instruction);
+            trace!("Frame Operands: {:?}", frame.operands);
+            trace!("Frame Locals: {:?}", frame.locals);
+
             match instruction {
 
                 Instruction::Assert => {
