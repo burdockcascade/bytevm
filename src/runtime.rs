@@ -198,6 +198,21 @@ impl Vm {
                     self.pc += 1;
                 },
 
+                Instruction::GetArrayLength => {
+                    let array = frame.pop_operand();
+                    let length = match array {
+                        Variant::Array(array) => {
+                            let array = array.borrow();
+                            array.len()
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected an array but got {:?}", array)
+                        })
+                    };
+                    frame.push_operand(Variant::Integer(length as i64));
+                    self.pc += 1;
+                },
+
                 // Dictionaries
 
                 Instruction::CreateDictionary(size) => {

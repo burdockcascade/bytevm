@@ -14,6 +14,7 @@ pub enum Instruction {
     CreateArray(usize),
     GetArrayItem,
     SetArrayItem,
+    GetArrayLength,
 
     // Dictionaries
     CreateDictionary(usize),
