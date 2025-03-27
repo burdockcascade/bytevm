@@ -282,12 +282,7 @@ impl Vm {
 
                 Instruction::FunctionCall(arg_count) => {
 
-                    // Get the function arguments from the stack
-                    let mut args = Vec::with_capacity(*arg_count);
-                    for _ in 0..*arg_count {
-                        args.push(frame.pop_operand());
-                    }
-                    args.reverse();
+                    let args = frame.pop_operands(*arg_count);;
 
                     // Get the function name from the stack
                     let name = match frame.pop_operand() {
@@ -300,13 +295,7 @@ impl Vm {
                     match self.globals.get(&name) {
                         Some(func) => {
                             match func {
-                                GlobalEntry::NativeFunction { arity } => {
-
-                                    // pad with nulls if the function expects more arguments
-                                    for _ in 0..(*arity - *arg_count) {
-                                        args.push(Variant::Null);
-                                    }
-
+                                GlobalEntry::NativeFunction { .. } => {
                                     let function = self.native_functions.get(&name).unwrap();
                                     let result = function(args);
                                     if let Some(result) = result {
@@ -314,24 +303,11 @@ impl Vm {
                                     }
                                     self.pc += 1;
                                 },
-                                GlobalEntry::UserDefinedFunction { address, arity } => {
-
-                                    // pad with nulls if the function expects more arguments
-                                    if *arg_count < *arity {
-                                        for _ in 0..(*arity - *arg_count) {
-                                            args.push(Variant::Null);
-                                        }
-                                    }
-
+                                GlobalEntry::UserDefinedFunction { address, .. } => {
                                     let mut new_frame = StackFrame::new();
                                     new_frame.base_address = *address;
                                     new_frame.return_address = Some(self.pc + 1);
-
-                                    // push only the arguments needed
-                                    for i in 0..*arity {
-                                        new_frame.push_local(args[i].clone());
-                                    }
-
+                                    new_frame.locals = args;
                                     self.stack.push(frame);
                                     frame = new_frame;
                                     self.pc = *address;
