@@ -2,7 +2,6 @@ use crate::variant::Variant;
 
 #[derive(Debug, Clone)]
 pub struct StackFrame {
-    pub id: usize,
     pub locals: Vec<Variant>,
     pub operands: Vec<Variant>,
     pub base_address: usize,
@@ -10,9 +9,8 @@ pub struct StackFrame {
 }
 
 impl StackFrame {
-    pub fn new(id: usize) -> StackFrame {
+    pub fn new() -> StackFrame {
         StackFrame {
-            id,
             locals: Vec::with_capacity(16),
             operands: Vec::with_capacity(16),
             base_address: 0,

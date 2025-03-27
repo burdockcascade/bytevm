@@ -93,7 +93,7 @@ impl Vm {
             }
         };
 
-        let mut frame = StackFrame::new(0);
+        let mut frame = StackFrame::new();
 
         loop {
 
@@ -323,7 +323,7 @@ impl Vm {
                                         }
                                     }
 
-                                    let mut new_frame = StackFrame::new(frame.id + 1);
+                                    let mut new_frame = StackFrame::new();
                                     new_frame.base_address = *address;
                                     new_frame.return_address = Some(self.pc + 1);
 
