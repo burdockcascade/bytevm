@@ -323,9 +323,9 @@ impl Vm {
                                         }
                                     }
 
-                                    let pc = self.pc + 1;
                                     let mut new_frame = StackFrame::new(frame.id + 1);
-                                    new_frame.return_address = Some(pc);
+                                    new_frame.base_address = *address;
+                                    new_frame.return_address = Some(self.pc + 1);
 
                                     // push only the arguments needed
                                     for i in 0..*arity {
@@ -372,13 +372,13 @@ impl Vm {
                 // Jump instructions
 
                 Instruction::Jump(address) => {
-                    self.pc = *address;
+                    self.pc = frame.base_address + *address;
                 },
 
                 Instruction::JumpIfFalse(address) => {
                     let value: bool = frame.pop_operand().into();
                     if !value {
-                        self.pc = *address;
+                        self.pc = frame.base_address + *address;
                     } else {
                         self.pc += 1;
                     }
