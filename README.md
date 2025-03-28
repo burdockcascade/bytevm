@@ -1,7 +1,7 @@
-[![ci][1]][2] [![docs][5]][6] [![crates][7]][8] [![license-mit-badge][]](#license)
+[![tests][1]][2] [![docs][5]][6] [![crates][7]][8] [![license-mit-badge][]](#license)
 
-[1]: https://github.com/burdockcascade/bytevm/actions/workflows/ci.yml/badge.svg?branch=master
-[2]: https://github.com/burdockcascade/bytevm/actions/workflows/ci.yml
+[1]: https://github.com/burdockcascade/bytevm/actions/workflows/test.yml/badge.svg?branch=master
+[2]: https://github.com/burdockcascade/bytevm/actions/workflows/test.yml
 [5]: https://docs.rs/bytevm/badge.svg
 [6]: https://docs.rs/bytevm
 [7]: https://img.shields.io/crates/v/bytevm.svg
