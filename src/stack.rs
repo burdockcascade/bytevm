@@ -8,8 +8,8 @@ pub struct StackFrame {
     pub return_address: Option<usize>,
 }
 
-impl StackFrame {
-    pub fn new() -> StackFrame {
+impl Default for StackFrame {
+    fn default() -> Self {
         StackFrame {
             locals: Vec::with_capacity(16),
             operands: Vec::with_capacity(16),
@@ -17,6 +17,9 @@ impl StackFrame {
             return_address: None,
         }
     }
+}
+
+impl StackFrame {
 
     pub fn pop_operand(&mut self) -> Variant {
         self.operands.pop().expect("Operand stack should not be empty")
@@ -40,22 +43,14 @@ impl StackFrame {
     }
 
     pub fn get_local(&self, index: usize) -> Variant {
-        if index >= self.locals.len() {
-            panic!("Local variable not found: {}", index);
-        } else {
-            self.locals[index].clone()
-        }
+        self.locals.get(index).cloned().unwrap_or(Variant::Null)
     }
 
     pub fn set_local(&mut self, index: usize, value: Variant) {
         if index >= self.locals.len() {
-            for _ in self.locals.len()..index {
-                self.locals.push(Variant::Null);
-            }
-            self.locals.resize(index + 1, value);
-        } else {
-            self.locals[index] = value;
+            self.locals.resize(index + 1, Variant::Null);
         }
+        self.locals[index] = value;
     }
 
 }
@@ -67,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_stack_frame() {
-        let mut frame = StackFrame::new();
+        let mut frame = StackFrame::default();
         frame.push_operand(Variant::Integer(42));
         frame.push_operand(Variant::Integer(100));
         assert_eq!(frame.pop_operand(), Variant::Integer(100));
@@ -77,13 +72,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_stack_frame_panic() {
-        let mut frame = StackFrame::new();
+        let mut frame = StackFrame::default();
         frame.pop_operand();
     }
 
     #[test]
     fn test_stack_frame_locals() {
-        let mut frame = StackFrame::new();
+        let mut frame = StackFrame::default();
         frame.set_local(0, Variant::Integer(42));
         frame.set_local(1, Variant::Integer(100));
         assert_eq!(frame.get_local(0), Variant::Integer(42));
@@ -92,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_stack_frame_resize() {
-        let mut frame = StackFrame::new();
+        let mut frame = StackFrame::default();
         frame.set_local(2, Variant::Integer(42));
         assert_eq!(frame.get_local(0), Variant::Null);
         assert_eq!(frame.get_local(1), Variant::Null);

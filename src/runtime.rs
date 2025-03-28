@@ -36,7 +36,7 @@ impl Default for Vm {
             instructions: Vec::new(),
             globals: HashMap::new(),
             native_functions: HashMap::new(),
-            stack: Vec::new(),
+            stack: Vec::with_capacity(8),
             pc: 0,
         }
     }
@@ -93,7 +93,7 @@ impl Vm {
             }
         };
 
-        let mut frame = StackFrame::new();
+        let mut frame = StackFrame::default();
 
         loop {
 
@@ -304,7 +304,7 @@ impl Vm {
                                     self.pc += 1;
                                 },
                                 GlobalEntry::UserDefinedFunction { address, .. } => {
-                                    let mut new_frame = StackFrame::new();
+                                    let mut new_frame = StackFrame::default();
                                     new_frame.base_address = *address;
                                     new_frame.return_address = Some(self.pc + 1);
                                     new_frame.locals = args;
