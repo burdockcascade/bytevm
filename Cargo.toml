@@ -13,3 +13,8 @@ log = "0.4.27"
 
 [dev-dependencies]
 simplelog = "0.12.2"
+criterion = "0.5"
+
+[[bench]]
+name = "fib"
+harness = false
