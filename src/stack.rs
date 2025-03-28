@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_stack_frame() {
-        let mut frame = StackFrame::new(0);
+        let mut frame = StackFrame::new();
         frame.push_operand(Variant::Integer(42));
         frame.push_operand(Variant::Integer(100));
         assert_eq!(frame.pop_operand(), Variant::Integer(100));
@@ -77,13 +77,13 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_stack_frame_panic() {
-        let mut frame = StackFrame::new(0);
+        let mut frame = StackFrame::new();
         frame.pop_operand();
     }
 
     #[test]
     fn test_stack_frame_locals() {
-        let mut frame = StackFrame::new(0);
+        let mut frame = StackFrame::new();
         frame.set_local(0, Variant::Integer(42));
         frame.set_local(1, Variant::Integer(100));
         assert_eq!(frame.get_local(0), Variant::Integer(42));
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn test_stack_frame_resize() {
-        let mut frame = StackFrame::new(0);
+        let mut frame = StackFrame::new();
         frame.set_local(2, Variant::Integer(42));
         assert_eq!(frame.get_local(0), Variant::Null);
         assert_eq!(frame.get_local(1), Variant::Null);
