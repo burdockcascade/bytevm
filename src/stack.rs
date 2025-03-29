@@ -21,6 +21,14 @@ impl Default for StackFrame {
 
 impl StackFrame {
 
+    pub fn new(base_address: usize, args: Vec<Variant>) -> Self {
+        StackFrame {
+            base_address,
+            locals: args,
+            ..Self::default()
+        }
+    }
+
     pub fn pop_operand(&mut self) -> Variant {
         self.operands.pop().expect("Operand stack should not be empty")
     }

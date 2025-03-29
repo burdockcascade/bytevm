@@ -308,10 +308,8 @@ impl Vm {
                                     self.pc += 1;
                                 },
                                 GlobalEntry::UserDefinedFunction { address, .. } => {
-                                    let mut new_frame = StackFrame::default();
-                                    new_frame.base_address = *address;
+                                    let mut new_frame = StackFrame::new(*address, args);
                                     new_frame.return_address = Some(self.pc + 1);
-                                    new_frame.locals = args;
                                     self.stack.push(frame);
                                     frame = new_frame;
                                     self.pc = *address;
