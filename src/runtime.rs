@@ -282,7 +282,7 @@ impl Vm {
 
                 Instruction::FunctionCall(arg_count) => {
 
-                    let args = frame.pop_operands(*arg_count);;
+                    let args = frame.pop_operands(*arg_count);
 
                     // Get the function name from the stack
                     let name = match frame.pop_operand() {
