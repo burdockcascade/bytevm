@@ -25,15 +25,6 @@ impl StackFrame {
         self.operands.pop().expect("Operand stack should not be empty")
     }
 
-    pub fn pop_operands(&mut self, count: usize) -> Vec<Variant> {
-        let mut result = Vec::with_capacity(count);
-        for _ in 0..count {
-            result.push(self.pop_operand());
-        }
-        result.reverse();
-        result
-    }
-
     pub fn push_operand(&mut self, operand: Variant) {
         self.operands.push(operand);
     }

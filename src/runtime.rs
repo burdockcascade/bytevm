@@ -282,7 +282,11 @@ impl Vm {
 
                 Instruction::FunctionCall(arg_count) => {
 
-                    let args = frame.pop_operands(*arg_count);
+                    let mut args = Vec::with_capacity(*arg_count);
+                    for _ in 0..*arg_count {
+                        args.push(frame.pop_operand());
+                    }
+                    args.reverse();
 
                     // Get the function name from the stack
                     let name = match frame.pop_operand() {
