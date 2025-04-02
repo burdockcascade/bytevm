@@ -99,6 +99,8 @@ impl Vm {
     // Executes a function with the given parameters.
     fn execute(&self, f: &Function, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
         
+        trace!("> Executing function: {:?}, with parameters: {:?}", f.name, parameters);
+        
         let mut pc = 0;
         let mut frame = StackFrame {
             locals: parameters,
@@ -108,8 +110,6 @@ impl Vm {
         let start = std::time::Instant::now();
 
         while let Some(instruction) = f.instructions.get(pc) {
-
-            trace!("[Loop Start]");
             
             trace!("Program Counter: {}", pc);
             trace!("Executing instruction: {:?}", instruction);
@@ -175,12 +175,13 @@ impl Vm {
                 },
 
                 Instruction::Return => {
+                    trace!("Returning from function {}", f.name);
                     return Ok(VmExecutionResult {
                         result: frame.operands.pop(),
                         run_time: start.elapsed().as_nanos()
                     });
                 }
-                
+
                 // Assert
 
                 Instruction::Assert => {
@@ -192,7 +193,7 @@ impl Vm {
                     }
                     pc += 1;
                 },
-                
+
                 // Operands
 
                 Instruction::Push(value) => {
