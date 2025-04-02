@@ -26,8 +26,7 @@ program.add_main_function(vec![
     Instruction::Push(Variant::Identifier(String::from("add"))),
     Instruction::GetLocal(0),
     Instruction::GetLocal(1),
-    Instruction::FunctionCall(2),
-    Instruction::Return
+    Instruction::FunctionCall(2)
 ]);
 
 program.add_function(String::from("add"), 2, vec![

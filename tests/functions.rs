@@ -15,8 +15,7 @@ fn test_user_defined_function() {
             Instruction::Push(Variant::Identifier(String::from("add"))),
             Instruction::GetLocal(0),
             Instruction::GetLocal(1),
-            Instruction::FunctionCall(2),
-            Instruction::Halt,
+            Instruction::FunctionCall(2)
         ]
     );
     
@@ -43,8 +42,7 @@ fn test_builtin_function() {
             Instruction::Push(Variant::Identifier(String::from("add"))),
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
-            Instruction::FunctionCall(2),
-            Instruction::Halt
+            Instruction::FunctionCall(2)
         ]
     );
 

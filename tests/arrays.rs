@@ -4,9 +4,9 @@ use bytevm::variant::Variant;
 
 #[test]
 fn test_create_array() {
-    
+
     let mut program = Program::default();
-    
+
     program.add_main_function(vec![
         // Create array [1, 2, 3]
         Instruction::Push(Variant::Integer(1)),
@@ -35,7 +35,7 @@ fn test_create_array() {
 
 #[test]
 fn test_get_array_element() {
-    
+
     let mut program = Program::default();
     program.add_main_function(vec![
         // Create array [1, 2, 3]
@@ -60,9 +60,9 @@ fn test_get_array_element() {
 
 #[test]
 fn test_set_array_element() {
-    
+
     let mut program = Program::default();
-    
+
     program.add_main_function(vec![
         // Create array [1, 2, 3]
         Instruction::Push(Variant::Integer(1)),

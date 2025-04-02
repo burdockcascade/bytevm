@@ -11,7 +11,7 @@ fn test_add_and_compare() {
             Instruction::Add,
             Instruction::Push(Variant::Integer(3)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -32,7 +32,7 @@ fn test_add_and_compare_false() {
             Instruction::Add,
             Instruction::Push(Variant::Integer(4)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -52,7 +52,7 @@ fn test_sub_and_compare() {
             Instruction::Sub,
             Instruction::Push(Variant::Integer(3)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -72,7 +72,7 @@ fn test_mul_and_compare() {
             Instruction::Mul,
             Instruction::Push(Variant::Integer(6)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -92,7 +92,7 @@ fn test_div_and_compare() {
             Instruction::Div,
             Instruction::Push(Variant::Integer(2)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -112,7 +112,7 @@ fn test_mod_and_compare() {
             Instruction::Mod,
             Instruction::Push(Variant::Integer(1)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -132,7 +132,7 @@ fn test_pow_and_compare() {
             Instruction::Pow,
             Instruction::Push(Variant::Integer(8)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -151,7 +151,7 @@ fn test_negate() {
             Instruction::Negate,
             Instruction::Push(Variant::Integer(-2)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -171,7 +171,7 @@ fn test_less_than() {
             Instruction::LessThan,
             Instruction::Push(Variant::Boolean(true)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -191,7 +191,7 @@ fn test_less_than_or_equal() {
             Instruction::LessEqual,
             Instruction::Push(Variant::Boolean(true)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -211,7 +211,7 @@ fn test_greater_than() {
             Instruction::GreaterThan,
             Instruction::Push(Variant::Boolean(true)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
     
@@ -231,7 +231,7 @@ fn test_greater_than_or_equal() {
             Instruction::GreaterEqual,
             Instruction::Push(Variant::Boolean(true)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
@@ -251,7 +251,7 @@ fn test_not_equal() {
             Instruction::NotEqual,
             Instruction::Push(Variant::Boolean(true)),
             Instruction::Equal,
-            Instruction::Halt
+            Instruction::Return
         ]
     );
 
