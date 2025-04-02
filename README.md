@@ -16,37 +16,26 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 
 ## Examples
 ```rust
-let mut globals = HashMap::new();
-globals.insert(String::from("main"), GlobalEntry::UserDefinedFunction {
-    address: 0,
-    arity: 0
-});
-globals.insert(String::from("add"), GlobalEntry::UserDefinedFunction {
-    address: 9,
-    arity: 2
-});
+let mut program = Program::default();
 
-let program = Program {
-    globals,
-    instructions: vec![
-        // main
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::SetLocal(0),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::SetLocal(1),
-        Instruction::Push(Variant::Identifier(String::from("add"))),
-        Instruction::GetLocal(0),
-        Instruction::GetLocal(1),
-        Instruction::FunctionCall(2),
-        Instruction::Halt,
-    
-        // add
-        Instruction::GetLocal(1),
-        Instruction::GetLocal(0),
-        Instruction::Add,
-        Instruction::Return
-    ]
-};
+program.add_main_function(vec![
+    Instruction::Push(Variant::Integer(1)),
+    Instruction::SetLocal(0),
+    Instruction::Push(Variant::Integer(2)),
+    Instruction::SetLocal(1),
+    Instruction::Push(Variant::Identifier(String::from("add"))),
+    Instruction::GetLocal(0),
+    Instruction::GetLocal(1),
+    Instruction::FunctionCall(2),
+    Instruction::Return
+]);
+
+program.add_function(String::from("add"), 2, vec![
+    Instruction::GetLocal(0),
+    Instruction::GetLocal(1),
+    Instruction::Add,
+    Instruction::Return
+]);
 
 let mut vm = Vm::default();
 vm.load_program(program);

@@ -1,8 +1,6 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use bytevm::program::{Instruction, Program};
-use bytevm::variant::Variant;
 use bytevm::runtime::Vm;
+use bytevm::variant::Variant;
 
 #[test]
 fn test_create_dictionary() {
@@ -11,8 +9,8 @@ fn test_create_dictionary() {
     let key2 = 4;
     let key3 = true;
 
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
 
             // first entry, "key1" = 1
             Instruction::Push(Variant::String(key1.clone())),
@@ -31,9 +29,8 @@ fn test_create_dictionary() {
 
             // Return
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -57,8 +54,8 @@ fn test_get_dictionary_item() {
     let key2 = String::from("key2");
     let key3 = String::from("key3");
 
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(key1.clone())),
             Instruction::Push(Variant::Integer(1)),
@@ -74,9 +71,8 @@ fn test_get_dictionary_item() {
 
             // Return the value
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -92,8 +88,8 @@ fn test_get_dictionary_keys() {
     let key2 = String::from("key2");
     let key3 = String::from("key3");
 
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(key1.clone())),
             Instruction::Push(Variant::Integer(1)),
@@ -106,9 +102,8 @@ fn test_get_dictionary_keys() {
             // Return the value
             Instruction::GetDictionaryKeys,
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);

@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::variant::Variant;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Instruction {
@@ -67,25 +67,51 @@ pub enum Instruction {
 }
 
 #[derive(Debug, Clone)]
+pub struct Function {
+    pub name: String,
+    pub arity: usize,
+    pub instructions: Vec<Instruction>
+}
+
+#[derive(Debug, Clone)]
 pub struct Program {
     pub globals: HashMap<String, GlobalEntry>,
-    pub instructions: Vec<Instruction>
+    pub functions: Vec<Function>
 }
 
 impl Default for Program {
     fn default() -> Self {
-
-        let mut symbols = HashMap::new();
-        symbols.insert(String::from("main"), GlobalEntry::UserDefinedFunction {
-            address: 0,
-            arity: 0
-        });
-
         Program {
-            globals: symbols,
-            instructions: Vec::new()
+            globals: Default::default(),
+            functions: Default::default(),
         }
     }
+}
+
+impl Program {
+    
+    pub fn with_main(instructions: Vec<Instruction>) -> Self {
+        let mut program = Program::default();
+        program.add_main_function(instructions);
+        program
+    }
+    
+    pub fn add_function(&mut self, name: String, arity: usize, instructions: Vec<Instruction>) {
+        self.globals.insert(name.clone(), GlobalEntry::UserDefinedFunction {
+            address: self.functions.len(),
+            arity
+        });
+        self.functions.push(Function {
+            name,
+            arity,
+            instructions
+        });
+    }
+    
+    pub fn add_main_function(&mut self, instructions: Vec<Instruction>) {
+        self.add_function(String::from("main"), 0, instructions);
+    }
+    
 }
 
 #[derive(Debug, Clone)]

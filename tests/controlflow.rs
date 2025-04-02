@@ -1,20 +1,19 @@
 use bytevm::program::{Instruction, Program};
-use bytevm::variant::Variant;
 use bytevm::runtime::Vm;
+use bytevm::variant::Variant;
 
 #[test]
 fn test_jump() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Jump(4),
             Instruction::Push(Variant::Integer(2)),
             Instruction::Return,
             Instruction::Push(Variant::Integer(3)),
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -25,17 +24,16 @@ fn test_jump() {
 
 #[test]
 fn test_jump_if_false() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             Instruction::Push(Variant::Boolean(false)),
             Instruction::JumpIfFalse(4),
             Instruction::Push(Variant::Integer(1)),
             Instruction::Return,
             Instruction::Push(Variant::Integer(2)),
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -46,17 +44,16 @@ fn test_jump_if_false() {
 
 #[test]
 fn test_dont_jump_if_true() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             Instruction::Push(Variant::Boolean(true)),
             Instruction::JumpIfFalse(4),
             Instruction::Push(Variant::Integer(1)),
             Instruction::Return,
             Instruction::Push(Variant::Integer(2)),
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -67,8 +64,8 @@ fn test_dont_jump_if_true() {
 
 #[test]
 fn test_for_while_loop() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Set i = 0
             Instruction::Push(Variant::Integer(0)),
             Instruction::SetLocal(0),
@@ -98,9 +95,8 @@ fn test_for_while_loop() {
             Instruction::GetLocal(0),
             Instruction::Return
 
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -117,8 +113,8 @@ fn test_foreach_array_loop() {
     let max = 2;
     let item = 3;
 
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Create an array with 3 elements
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
@@ -162,9 +158,8 @@ fn test_foreach_array_loop() {
             Instruction::GetLocal(index),
             Instruction::Return // 23
 
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -177,16 +172,15 @@ fn test_foreach_array_loop() {
 fn test_foreach_dictionary_loop() {
 
     //TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
-
-
+    
     let dictionary = 0;
     let keys = 1;
     let index = 2;
     let max = 3;
     let item = 4;
 
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(String::from("key1"))),
             Instruction::Push(Variant::Integer(1)),
@@ -244,9 +238,8 @@ fn test_foreach_dictionary_loop() {
             Instruction::GetLocal(index), // 31
             Instruction::Return
 
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);

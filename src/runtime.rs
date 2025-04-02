@@ -1,10 +1,10 @@
-use crate::program::{Instruction, Program, GlobalEntry};
+use crate::program::{Function, GlobalEntry, Instruction, Program};
 use crate::stack::StackFrame;
 use crate::variant::Variant;
+use log::{debug, trace};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use log::{debug, trace};
 
 #[derive(Debug)]
 pub struct VmExecutionResult {
@@ -23,21 +23,17 @@ pub enum VmError {
 }
 
 pub struct Vm {
-    instructions: Vec<Instruction>,
+    functions: Vec<Function>,
     globals: HashMap<String, GlobalEntry>,
-    native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>,
-    pub stack: Vec<StackFrame>,
-    pub pc: usize,
+    native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
 
 impl Default for Vm {
     fn default() -> Self {
         Vm {
-            instructions: Vec::new(),
+            functions: Default::default(),
             globals: HashMap::new(),
-            native_functions: HashMap::new(),
-            stack: Vec::with_capacity(8),
-            pc: 0,
+            native_functions: HashMap::new()
         }
     }
 }
@@ -45,30 +41,25 @@ impl Default for Vm {
 impl Vm {
 
     pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
-        self.native_functions.insert(name, function);
+        self.native_functions.insert(name.clone(), function);
+        self.globals.insert(name.clone(), GlobalEntry::NativeFunction {
+            arity: 0
+        });
     }
     
     pub fn load_program(&mut self, program: Program) {
 
-        debug!("Loaded program with {} instructions and {} globals", program.instructions.len(), program.globals.len());
-        trace!("Instructions: {:?}", program.instructions);
+        debug!("Loaded program");
         trace!("Globals: {:?}", program.globals);
+        trace!("Functions: {:?}", program.functions);
 
-        self.instructions = program.instructions;
-        self.globals = program.globals;
+        self.functions.extend(program.functions);
+        self.globals.extend(program.globals.into_iter());
     }
 
-    pub fn run(mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
+    pub fn run(&mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
 
-        let start = std::time::Instant::now();
-
-        if self.instructions.is_empty() {
-            return Err(VmError::RuntimeWarning {
-                message: "No instructions found".to_string()
-            });
-        }
-
-        self.pc = match entry_point {
+        let function_index = match entry_point {
             Some(label) => match self.globals.get(&label) {
                 Some(symbol) => match symbol {
                     GlobalEntry::UserDefinedFunction { address, .. } => *address,
@@ -93,190 +84,45 @@ impl Vm {
             }
         };
 
-        let mut frame = StackFrame::default();
+        let result = match self.functions.get(function_index) {
+            Some(f) => {
+                self.execute(&f, vec![])
+            },
+            None => Err(VmError::RuntimeError {
+                message: format!("Function not found: {}", function_index)
+            })
+        };
+
+        result
+    }
+
+    /// Executes a function with the given parameters.
+    fn execute(&self, f: &Function, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
+        
+        let mut pc = 0;
+        let mut frame = StackFrame {
+            locals: parameters,
+            operands: Vec::with_capacity(8),
+        };
+
+        let start = std::time::Instant::now();
 
         loop {
 
             trace!("[Loop Start]");
 
-            let Some(instruction) = &self.instructions.get(self.pc) else {
+            let Some(instruction) = f.instructions.get(pc) else {
                 return Err(VmError::RuntimeError {
                     message: "Invalid program counter".to_string()
                 });
             };
-
-            trace!("Stack Counter: {:?}", self.stack.len());
-            trace!("Program Counter: {}", self.pc);
+            
+            trace!("Program Counter: {}", pc);
             trace!("Executing instruction: {:?}", instruction);
             trace!("Frame Locals: {:?}", frame.locals);
             trace!("Frame Operands: {:?}", frame.operands);
 
             match instruction {
-
-                Instruction::Assert => {
-                    let value: bool = frame.pop_operand().into();
-                    if !value {
-                        return Err(VmError::RuntimeError {
-                            message: "Assertion failed".to_string()
-                        });
-                    }
-                    self.pc += 1;
-                },
-
-                Instruction::Push(value) => {
-                    frame.push_operand(value.clone());
-                    self.pc += 1;
-                },
-
-                Instruction::Pop => {
-                    frame.pop_operand();
-                    self.pc += 1;
-                },
-
-                // Local variables
-
-                Instruction::SetLocal(index) => {
-                    let value = frame.pop_operand();
-                    frame.set_local(*index, value);
-                    self.pc += 1;
-                },
-
-                Instruction::GetLocal(index) => {
-                    let value = frame.get_local(*index);
-                    frame.push_operand(value);
-                    self.pc += 1;
-                },
-
-                // Arrays
-
-                Instruction::CreateArray(size) => {
-                    let mut array = Vec::with_capacity(*size);
-                    for _ in 0..*size {
-                        array.push(frame.pop_operand());
-                    }
-                    array.reverse();
-                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(array))));
-                    self.pc += 1;
-                },
-
-                Instruction::GetArrayItem => {
-                    let index = frame.pop_operand();
-                    let array = frame.pop_operand();
-                    let value = match array {
-                        Variant::Array(array) => {
-                            let array = array.borrow();
-                            let index: usize = index.into();
-                            match array.get(index) {
-                                Some(value) => value.clone(),
-                                None => return Err(VmError::RuntimeError {
-                                    message: "Index out of bounds".to_string()
-                                })
-                            }
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
-                    };
-                    frame.push_operand(value);
-                    self.pc += 1;
-                }
-
-                Instruction::SetArrayItem => {
-                    let value = frame.pop_operand();
-                    let index = frame.pop_operand();
-                    let array = frame.pop_operand();
-                    match array {
-                        Variant::Array(array) => {
-                            let mut array = array.borrow_mut();
-                            let index: usize = index.into();
-                            array[index] = value;
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
-                    }
-                    self.pc += 1;
-                },
-
-                Instruction::GetArrayLength => {
-                    let array = frame.pop_operand();
-                    let length = match array {
-                        Variant::Array(array) => {
-                            let array = array.borrow();
-                            array.len()
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
-                    };
-                    frame.push_operand(Variant::Integer(length as i64));
-                    self.pc += 1;
-                },
-
-                // Dictionaries
-
-                Instruction::CreateDictionary(size) => {
-                    let mut table = HashMap::new();
-                    for _ in 0..*size {
-                        let value = frame.pop_operand();
-                        let key = frame.pop_operand();
-                        table.insert(key, value);
-                    }
-                    frame.push_operand(Variant::Dictionary(Rc::new(RefCell::new(table))));
-                    self.pc += 1;
-                },
-
-                Instruction::GetDictionaryItem => {
-                    let key = frame.pop_operand();
-                    let table = frame.pop_operand();
-                    let value = match table {
-                        Variant::Dictionary(table) => {
-                            let table = table.borrow();
-                            match table.get(&key) {
-                                Some(value) => value.clone(),
-                                None => return Err(VmError::RuntimeError {
-                                    message: format!("Key not found: {:?}", key)
-                                })
-                            }
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
-                    };
-                    frame.push_operand(value);
-                    self.pc += 1;
-                }
-
-                Instruction::SetDictionaryItem => {
-                    let value = frame.pop_operand();
-                    let key = frame.pop_operand();
-                    let table = frame.pop_operand();
-                    match table {
-                        Variant::Dictionary(table) => {
-                            let mut table = table.borrow_mut();
-                            table.insert(key, value);
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
-                    }
-                    self.pc += 1;
-                },
-
-                Instruction::GetDictionaryKeys => {
-                    let table = frame.pop_operand();
-                    let keys = match table {
-                        Variant::Dictionary(table) => {
-                            let table = table.borrow();
-                            table.keys().cloned().collect::<Vec<Variant>>()
-                        },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
-                    };
-                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
-                    self.pc += 1;
-                },
 
                 // Function calls
 
@@ -305,14 +151,24 @@ impl Vm {
                                     if let Some(result) = result {
                                         frame.push_operand(result);
                                     }
-                                    self.pc += 1;
+
                                 },
                                 GlobalEntry::UserDefinedFunction { address, .. } => {
-                                    let mut new_frame = StackFrame::new(*address, args);
-                                    new_frame.return_address = Some(self.pc + 1);
-                                    self.stack.push(frame);
-                                    frame = new_frame;
-                                    self.pc = *address;
+                                    match self.functions.get(*address) {
+                                        Some(func) => {
+                                            match self.execute(func, args) {
+                                                Ok(result) => {
+                                                    frame.push_operand(result.result.unwrap());
+                                                },
+                                                Err(err) => {
+                                                    return Err(err);
+                                                }
+                                            }
+                                        }
+                                        None => return Err(VmError::RuntimeError {
+                                            message: format!("Function not found: {}", name)
+                                        })
+                                    }
                                 }
                             }
                         },
@@ -320,45 +176,193 @@ impl Vm {
                             message: format!("Function not found: {}", name)
                         })
                     }
+
+                    pc += 1;
                 },
 
-                Instruction::Return => {
-                    match frame.return_address {
-                        Some(address) => {
+                Instruction::Return => break,
+                
+                // Assert
 
-                            if frame.operands.len() > 1 {
-                                return Err(VmError::RuntimeError {
-                                    message: "Too many items on the stack".to_string()
-                                });
-                            }
-
-                            let return_value = if frame.operands.is_empty() {
-                                Variant::Null
-                            } else {
-                                frame.pop_operand()
-                            };
-
-                            self.pc = address;
-                            frame = self.stack.pop().unwrap();
-
-                            frame.push_operand(return_value);
-                        },
-                        None => break
+                Instruction::Assert => {
+                    let value: bool = frame.pop_operand().into();
+                    if !value {
+                        return Err(VmError::RuntimeError {
+                            message: "Assertion failed".to_string()
+                        });
                     }
+                    pc += 1;
+                },
+                
+                // Operands
+
+                Instruction::Push(value) => {
+                    frame.push_operand(value.clone());
+                    pc += 1;
+                },
+
+                Instruction::Pop => {
+                    frame.pop_operand();
+                    pc += 1;
+                },
+
+                // Local variables
+
+                Instruction::SetLocal(index) => {
+                    let value = frame.pop_operand();
+                    frame.set_local(*index, value);
+                    pc += 1;
+                },
+
+                Instruction::GetLocal(index) => {
+                    let value = frame.get_local(*index);
+                    frame.push_operand(value);
+                    pc += 1;
+                },
+
+                // Arrays
+
+                Instruction::CreateArray(size) => {
+                    let mut array = Vec::with_capacity(*size);
+                    for _ in 0..*size {
+                        array.push(frame.pop_operand());
+                    }
+                    array.reverse();
+                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(array))));
+                    pc += 1;
+                },
+
+                Instruction::GetArrayItem => {
+                    let index = frame.pop_operand();
+                    let array = frame.pop_operand();
+                    let value = match array {
+                        Variant::Array(array) => {
+                            let array = array.borrow();
+                            let index: usize = index.into();
+                            match array.get(index) {
+                                Some(value) => value.clone(),
+                                None => return Err(VmError::RuntimeError {
+                                    message: "Index out of bounds".to_string()
+                                })
+                            }
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected an array but got {:?}", array)
+                        })
+                    };
+                    frame.push_operand(value);
+                    pc += 1;
+                }
+
+                Instruction::SetArrayItem => {
+                    let value = frame.pop_operand();
+                    let index = frame.pop_operand();
+                    let array = frame.pop_operand();
+                    match array {
+                        Variant::Array(array) => {
+                            let mut array = array.borrow_mut();
+                            let index: usize = index.into();
+                            array[index] = value;
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected an array but got {:?}", array)
+                        })
+                    }
+                    pc += 1;
+                },
+
+                Instruction::GetArrayLength => {
+                    let array = frame.pop_operand();
+                    let length = match array {
+                        Variant::Array(array) => {
+                            let array = array.borrow();
+                            array.len()
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected an array but got {:?}", array)
+                        })
+                    };
+                    frame.push_operand(Variant::Integer(length as i64));
+                    pc += 1;
+                },
+
+                // Dictionaries
+
+                Instruction::CreateDictionary(size) => {
+                    let mut table = HashMap::new();
+                    for _ in 0..*size {
+                        let value = frame.pop_operand();
+                        let key = frame.pop_operand();
+                        table.insert(key, value);
+                    }
+                    frame.push_operand(Variant::Dictionary(Rc::new(RefCell::new(table))));
+                    pc += 1;
+                },
+
+                Instruction::GetDictionaryItem => {
+                    let key = frame.pop_operand();
+                    let table = frame.pop_operand();
+                    let value = match table {
+                        Variant::Dictionary(table) => {
+                            let table = table.borrow();
+                            match table.get(&key) {
+                                Some(value) => value.clone(),
+                                None => return Err(VmError::RuntimeError {
+                                    message: format!("Key not found: {:?}", key)
+                                })
+                            }
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected a dictionary but got {:?}", table)
+                        })
+                    };
+                    frame.push_operand(value);
+                    pc += 1;
+                }
+
+                Instruction::SetDictionaryItem => {
+                    let value = frame.pop_operand();
+                    let key = frame.pop_operand();
+                    let table = frame.pop_operand();
+                    match table {
+                        Variant::Dictionary(table) => {
+                            let mut table = table.borrow_mut();
+                            table.insert(key, value);
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected a dictionary but got {:?}", table)
+                        })
+                    }
+                    pc += 1;
+                },
+
+                Instruction::GetDictionaryKeys => {
+                    let table = frame.pop_operand();
+                    let keys = match table {
+                        Variant::Dictionary(table) => {
+                            let table = table.borrow();
+                            table.keys().cloned().collect::<Vec<Variant>>()
+                        },
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Expected a dictionary but got {:?}", table)
+                        })
+                    };
+                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
+                    pc += 1;
                 },
 
                 // Jump instructions
 
                 Instruction::Jump(address) => {
-                    self.pc = frame.base_address + *address;
+                    pc = *address;
                 },
 
                 Instruction::JumpIfFalse(address) => {
                     let value: bool = frame.pop_operand().into();
                     if !value {
-                        self.pc = frame.base_address + *address;
+                        pc = *address;
                     } else {
-                        self.pc += 1;
+                        pc += 1;
                     }
                 },
 
@@ -368,76 +372,76 @@ impl Vm {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b == a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Add => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b + a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Sub => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b - a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Mul => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b * a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Div => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b / a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Not => {
                     let a = frame.pop_operand();
                     frame.push_operand(!a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GreaterThan => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b > a));
-                    self.pc += 1;
+                    pc += 1;
                 }
 
                 Instruction::LessThan => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b < a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::LessEqual => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b <= a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GreaterEqual => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b >= a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::NotEqual => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(Variant::Boolean(b != a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Or => {
@@ -445,7 +449,7 @@ impl Vm {
                     let b = frame.pop_operand();
                     let result: bool = b.into() || a.into();
                     frame.push_operand(Variant::Boolean(result));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::And => {
@@ -453,34 +457,34 @@ impl Vm {
                     let b = frame.pop_operand();
                     let result: bool = b.into() && a.into();
                     frame.push_operand(Variant::Boolean(result));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Mod => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b % a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Pow => {
                     let a = frame.pop_operand();
                     let b = frame.pop_operand();
                     frame.push_operand(b.pow(&a));
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Negate => {
                     let a = frame.pop_operand();
                     frame.push_operand(-a);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 // Output
                 Instruction::Print => {
                     let value = frame.pop_operand();
                     println!("{}", value);
-                    self.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Halt => {
@@ -503,10 +507,7 @@ impl Vm {
         }
 
         Ok(VmExecutionResult {
-            result: match frame.operands.pop() {
-                Some(result) => Some(result),
-                None => None
-            },
+            result: frame.operands.pop(),
             run_time: start.elapsed().as_nanos()
         })
 

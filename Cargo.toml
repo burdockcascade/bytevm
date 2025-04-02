@@ -22,3 +22,7 @@ harness = false
 [[bench]]
 name = "while"
 harness = false
+
+[[bench]]
+name = "functioncall"
+harness = false

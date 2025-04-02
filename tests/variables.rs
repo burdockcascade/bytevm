@@ -1,11 +1,11 @@
 use bytevm::program::{Instruction, Program};
-use bytevm::variant::Variant;
 use bytevm::runtime::Vm;
+use bytevm::variant::Variant;
 
 #[test]
 fn test_get_variable() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Set local 0
             Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
@@ -17,9 +17,8 @@ fn test_get_variable() {
             // Get local 0
             Instruction::GetLocal(0),
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -31,8 +30,8 @@ fn test_get_variable() {
 
 #[test]
 fn test_overwrite_local() {
-    let program = Program {
-        instructions: vec![
+    let mut program = Program::default();
+    program.add_main_function(vec![
             // Set local 0
             Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
@@ -44,9 +43,8 @@ fn test_overwrite_local() {
             // Get local 0
             Instruction::GetLocal(0),
             Instruction::Return
-        ],
-        ..Default::default()
-    };
+        ]
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);

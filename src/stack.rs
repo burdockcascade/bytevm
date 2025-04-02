@@ -3,9 +3,7 @@ use crate::variant::Variant;
 #[derive(Debug, Clone)]
 pub struct StackFrame {
     pub locals: Vec<Variant>,
-    pub operands: Vec<Variant>,
-    pub base_address: usize,
-    pub return_address: Option<usize>,
+    pub operands: Vec<Variant>
 }
 
 impl Default for StackFrame {
@@ -13,21 +11,11 @@ impl Default for StackFrame {
         StackFrame {
             locals: Vec::with_capacity(16),
             operands: Vec::with_capacity(16),
-            base_address: 0,
-            return_address: None,
         }
     }
 }
 
 impl StackFrame {
-
-    pub fn new(base_address: usize, args: Vec<Variant>) -> Self {
-        StackFrame {
-            base_address,
-            locals: args,
-            ..Self::default()
-        }
-    }
 
     pub fn pop_operand(&mut self) -> Variant {
         self.operands.pop().expect("Operand stack should not be empty")
@@ -35,10 +23,6 @@ impl StackFrame {
 
     pub fn push_operand(&mut self, operand: Variant) {
         self.operands.push(operand);
-    }
-
-    pub fn push_local(&mut self, value: Variant) {
-        self.locals.push(value);
     }
 
     pub fn get_local(&self, index: usize) -> Variant {
