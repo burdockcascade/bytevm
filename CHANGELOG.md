@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/burdockcascade/bytevm/compare/v0.4.0...v0.4.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* handle invalid instruction pointer in runtime loop ([8a31e8e](https://github.com/burdockcascade/bytevm/commit/8a31e8eb9118c415f728b5070dc0aac98c2a0e42))
+* handle optional returned result from function ([1642423](https://github.com/burdockcascade/bytevm/commit/1642423f7df555fe0cda7a11df824f3bd8600724))
+
 ## [0.4.0](https://github.com/burdockcascade/bytevm/compare/v0.3.0...v0.4.0) (2025-04-02)
 
 
