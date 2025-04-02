@@ -98,7 +98,7 @@ impl Program {
     
     pub fn add_function(&mut self, name: String, arity: usize, instructions: Vec<Instruction>) {
         self.globals.insert(name.clone(), GlobalEntry::UserDefinedFunction {
-            address: self.functions.len(),
+            index: self.functions.len(),
             arity
         });
         self.functions.push(Function {
@@ -120,7 +120,7 @@ pub enum GlobalEntry {
         arity: usize
     },
     UserDefinedFunction {
-        address: usize,
+        index: usize,
         arity: usize
     }
 }

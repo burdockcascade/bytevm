@@ -62,7 +62,7 @@ impl Vm {
         let function_index = match entry_point {
             Some(label) => match self.globals.get(&label) {
                 Some(symbol) => match symbol {
-                    GlobalEntry::UserDefinedFunction { address, .. } => *address,
+                    GlobalEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
                         message: format!("Entry point is not a function: {}", label)
                     })
@@ -73,7 +73,7 @@ impl Vm {
             },
             None => match self.globals.get("main") {
                 Some(symbol) => match symbol {
-                    GlobalEntry::UserDefinedFunction { address, .. } => *address,
+                    GlobalEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
                         message: "Main function not found".to_string()
                     })
@@ -147,7 +147,7 @@ impl Vm {
                                     }
 
                                 },
-                                GlobalEntry::UserDefinedFunction { address, .. } => {
+                                GlobalEntry::UserDefinedFunction { index: address, .. } => {
                                     match self.functions.get(*address) {
                                         Some(func) => {
                                             match self.execute(func, args) {

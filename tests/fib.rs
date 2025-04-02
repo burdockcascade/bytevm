@@ -11,13 +11,13 @@ fn test_fib() {
 
     let mut globals = HashMap::new();
     globals.insert(String::from("main"), GlobalEntry::UserDefinedFunction {
-        address: 1,
+        index: 1,
         arity: 0
     });
 
     let fib_func_name = String::from("fib");
     globals.insert(fib_func_name.clone(), GlobalEntry::UserDefinedFunction {
-        address: 0,
+        index: 0,
         arity: 2
     });
 
