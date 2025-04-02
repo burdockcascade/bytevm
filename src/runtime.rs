@@ -174,7 +174,12 @@ impl Vm {
                     pc += 1;
                 },
 
-                Instruction::Return => break,
+                Instruction::Return => {
+                    return Ok(VmExecutionResult {
+                        result: frame.operands.pop(),
+                        run_time: start.elapsed().as_nanos()
+                    });
+                }
                 
                 // Assert
 
@@ -501,7 +506,7 @@ impl Vm {
         }
 
         Ok(VmExecutionResult {
-            result: frame.operands.pop(),
+            result: None,
             run_time: start.elapsed().as_nanos()
         })
 
