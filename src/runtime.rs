@@ -96,7 +96,7 @@ impl Vm {
         result
     }
 
-    /// Executes a function with the given parameters.
+    // Executes a function with the given parameters.
     fn execute(&self, f: &Function, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
         
         let mut pc = 0;
@@ -107,15 +107,9 @@ impl Vm {
 
         let start = std::time::Instant::now();
 
-        loop {
+        while let Some(instruction) = f.instructions.get(pc) {
 
             trace!("[Loop Start]");
-
-            let Some(instruction) = f.instructions.get(pc) else {
-                return Err(VmError::RuntimeError {
-                    message: "Invalid program counter".to_string()
-                });
-            };
             
             trace!("Program Counter: {}", pc);
             trace!("Executing instruction: {:?}", instruction);
