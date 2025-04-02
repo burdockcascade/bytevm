@@ -505,6 +505,8 @@ impl Vm {
             }
 
         }
+        
+        trace!("Function {} finished execution without returning", f.name);
 
         Ok(VmExecutionResult {
             result: None,
