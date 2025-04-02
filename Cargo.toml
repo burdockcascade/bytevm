@@ -1,6 +1,6 @@
 [package]
 name = "bytevm"
-description = "A simple bytecode virtual machine"
+description = "A tiny bytecode virtual machine"
 keywords = ["vm", "bytecode", "interpreter"]
 categories = ["virtualization"]
 license = "MIT"
