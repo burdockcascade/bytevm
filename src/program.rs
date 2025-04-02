@@ -67,6 +67,17 @@ pub enum Instruction {
 }
 
 #[derive(Debug, Clone)]
+pub enum GlobalEntry {
+    NativeFunction {
+        arity: usize
+    },
+    UserDefinedFunction {
+        index: usize,
+        arity: usize
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Function {
     pub name: String,
     pub arity: usize,
@@ -106,15 +117,4 @@ impl Program {
         self.add_function(String::from("main"), 0, instructions);
     }
     
-}
-
-#[derive(Debug, Clone)]
-pub enum GlobalEntry {
-    NativeFunction {
-        arity: usize
-    },
-    UserDefinedFunction {
-        index: usize,
-        arity: usize
-    }
 }
