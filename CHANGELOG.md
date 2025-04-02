@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.4.0](https://github.com/burdockcascade/bytevm/compare/v0.3.0...v0.4.0) (2025-04-02)
+
+
+### Features
+
+* add benchmarking for while loop using Criterion ([9776e56](https://github.com/burdockcascade/bytevm/commit/9776e567255cb3cea19d0aea64269f49156f8dfd))
+* add Fibonacci benchmark using Criterion ([775e959](https://github.com/burdockcascade/bytevm/commit/775e959a220b03cac36cd006cf6efcf20d438de5))
+* add GetArrayLength instruction and corresponding tests for array handling ([bb93536](https://github.com/burdockcascade/bytevm/commit/bb935366c21030f580363bc35de94eefb330b997))
+* add GetDictionaryKeys instruction and corresponding tests ([ceb8981](https://github.com/burdockcascade/bytevm/commit/ceb89811b4ca6dd4af5f240977caf3d92d7b5822))
+* add global table for functions ([3fa61e1](https://github.com/burdockcascade/bytevm/commit/3fa61e19d37af35986facbbc4be2b06315090a8c))
+* add Print instruction for output handling ([37c9767](https://github.com/burdockcascade/bytevm/commit/37c976720bc7d437cdae03ff9a4a4dd661d77d7d))
+* add tracing for program execution details in runtime ([c70c56d](https://github.com/burdockcascade/bytevm/commit/c70c56d95bf98cb8cfbba56c5695b35c92d5a729))
+* enhance program structure with function-based approach for main and user-defined functions ([7c68183](https://github.com/burdockcascade/bytevm/commit/7c681838b0d5571ebe1b135d312ac63f14b2468a))
+* enhance tracing in runtime loop for better debugging ([9e98d0e](https://github.com/burdockcascade/bytevm/commit/9e98d0e8a6d4667d51f988cc396074b568223d56))
+
+
+### Bug Fixes
+
+* handle unexpected cases in function pointer execution ([2d2e939](https://github.com/burdockcascade/bytevm/commit/2d2e939c2f50c5cc1dd43bf3ef9d3ad1adbcc579))
+* improve error message for missing dictionary key ([f28658f](https://github.com/burdockcascade/bytevm/commit/f28658ffd6b712999a8f164185671501af8117f2))
+* remove redundant semicolon in function call instruction ([fd5c61c](https://github.com/burdockcascade/bytevm/commit/fd5c61c2ef95b827d77afa5eda8b7dc2e46d7661))
+* update jump instruction handling to use base address for correct program counter calculation ([51641c3](https://github.com/burdockcascade/bytevm/commit/51641c385a0e0c8839fc38738d7155bebd19e864))
+* update string addition handling in Variant to support different types ([4556625](https://github.com/burdockcascade/bytevm/commit/45566250cdb26d752da2fe86074fec27fab89987))
+
 ## [0.3.0](https://github.com/burdockcascade/bytevm/compare/v0.2.0...v0.3.0) (2025-03-25)
 
 
