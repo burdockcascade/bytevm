@@ -99,7 +99,9 @@ impl Vm {
     // Executes a function with the given parameters.
     fn execute(&self, f: &Function, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
         
-        trace!("> Executing function: {:?}, with parameters: {:?}", f.name, parameters);
+        trace!("=== Executing function: {} ====", f.name);
+        trace!("Parameters: {:?}", parameters);
+        trace!("Instructions: {:?}", f.instructions);
         
         let mut pc = 0;
         let mut frame = StackFrame {
@@ -178,7 +180,7 @@ impl Vm {
                 },
 
                 Instruction::Return => {
-                    trace!("Returning from function {}", f.name);
+                    trace!("=== Returning from function: {} ====", f.name);
                     return Ok(VmExecutionResult {
                         result: frame.operands.pop(),
                         run_time: start.elapsed().as_nanos()
@@ -509,7 +511,7 @@ impl Vm {
 
         }
         
-        trace!("Function {} finished execution without returning", f.name);
+        trace!("=== Finished executing function: {} ====", f.name);
 
         Ok(VmExecutionResult {
             result: None,
