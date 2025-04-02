@@ -152,7 +152,10 @@ impl Vm {
                                         Some(func) => {
                                             match self.execute(func, args) {
                                                 Ok(result) => {
-                                                    frame.push_operand(result.result.unwrap());
+                                                    match result.result {
+                                                        Some(value) => frame.push_operand(value),
+                                                        None => {}
+                                                    }
                                                 },
                                                 Err(err) => {
                                                     return Err(err);
