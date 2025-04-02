@@ -90,12 +90,6 @@ impl Default for Program {
 
 impl Program {
     
-    pub fn with_main(instructions: Vec<Instruction>) -> Self {
-        let mut program = Program::default();
-        program.add_main_function(instructions);
-        program
-    }
-    
     pub fn add_function(&mut self, name: String, arity: usize, instructions: Vec<Instruction>) {
         self.globals.insert(name.clone(), GlobalEntry::UserDefinedFunction {
             index: self.functions.len(),
