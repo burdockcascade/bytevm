@@ -111,7 +111,13 @@ impl Vm {
 
         let start = std::time::Instant::now();
 
-        while let Some(instruction) = f.instructions.get(pc) {
+        loop {
+            
+            let Some(instruction) = f.instructions.get(pc) else { 
+                return Err(VmError::RuntimeError {
+                    message: format!("Invalid instruction pointer {} in function {}", pc, f.name)
+                })
+            };
             
             trace!("Program Counter: {}", pc);
             trace!("Executing instruction: {:?}", instruction);
