@@ -228,6 +228,20 @@ impl Add for Variant {
             (Variant::Float(lhs), Variant::Float(rhs)) => Variant::Float(lhs + rhs),
             (Variant::String(lhs), rhs) => Variant::String(lhs + &rhs.to_string()),
             (Variant::Boolean(lhs), Variant::Boolean(rhs)) => Variant::Boolean(lhs && rhs),
+            (Variant::Array(lhs), Variant::Array(rhs)) => {
+                let mut lhs = lhs.borrow().clone();
+                let rhs = rhs.borrow();
+                lhs.extend(rhs.iter().cloned());
+                Variant::Array(Rc::new(RefCell::new(lhs)))
+            },
+            (Variant::Dictionary(lhs), Variant::Dictionary(rhs)) => {
+                let mut lhs = lhs.borrow().clone();
+                let rhs = rhs.borrow();
+                for (k, v) in rhs.iter() {
+                    lhs.insert(k.clone(), v.clone());
+                }
+                Variant::Dictionary(Rc::new(RefCell::new(lhs)))
+            },
             _ => panic!("Invalid operands for addition")
         }
     }
