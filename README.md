@@ -18,12 +18,12 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 ```rust
 let mut program = Program::default();
 
-program.add_main_function(vec![
+program.add_function(vec![
     Instruction::Push(Variant::Integer(1)),
     Instruction::SetLocal(0),
     Instruction::Push(Variant::Integer(2)),
     Instruction::SetLocal(1),
-    Instruction::Push(Variant::Identifier(String::from("add"))),
+    Instruction::Push(Variant::GlobalReference(String::from("add"))),
     Instruction::GetLocal(0),
     Instruction::GetLocal(1),
     Instruction::FunctionCall(2)
