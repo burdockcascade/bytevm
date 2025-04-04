@@ -10,7 +10,7 @@ fn test_create_dictionary() {
     let key3 = true;
 
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
 
             // first entry, "key1" = 1
             Instruction::Push(Variant::String(key1.clone())),
@@ -55,7 +55,7 @@ fn test_get_dictionary_item() {
     let key3 = String::from("key3");
 
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(key1.clone())),
             Instruction::Push(Variant::Integer(1)),
@@ -89,7 +89,7 @@ fn test_get_dictionary_keys() {
     let key3 = String::from("key3");
 
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(key1.clone())),
             Instruction::Push(Variant::Integer(1)),

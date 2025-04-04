@@ -5,7 +5,7 @@ use bytevm::variant::Variant;
 #[test]
 fn test_add_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
             Instruction::Add,
@@ -26,7 +26,7 @@ fn test_add_and_compare() {
 #[test]
 fn test_add_and_compare_false() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
             Instruction::Add,
@@ -46,7 +46,7 @@ fn test_add_and_compare_false() {
 #[test]
 fn test_sub_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(5)),
             Instruction::Push(Variant::Integer(2)),
             Instruction::Sub,
@@ -66,7 +66,7 @@ fn test_sub_and_compare() {
 #[test]
 fn test_mul_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(2)),
             Instruction::Push(Variant::Integer(3)),
             Instruction::Mul,
@@ -86,7 +86,7 @@ fn test_mul_and_compare() {
 #[test]
 fn test_div_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(6)),
             Instruction::Push(Variant::Integer(3)),
             Instruction::Div,
@@ -106,7 +106,7 @@ fn test_div_and_compare() {
 #[test]
 fn test_mod_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(7)),
             Instruction::Push(Variant::Integer(3)),
             Instruction::Mod,
@@ -126,7 +126,7 @@ fn test_mod_and_compare() {
 #[test]
 fn test_pow_and_compare() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(2)),
             Instruction::Push(Variant::Integer(3)),
             Instruction::Pow,
@@ -146,7 +146,7 @@ fn test_pow_and_compare() {
 #[test]
 fn test_negate() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(2)),
             Instruction::Negate,
             Instruction::Push(Variant::Integer(-2)),
@@ -165,7 +165,7 @@ fn test_negate() {
 #[test]
 fn test_less_than() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
             Instruction::LessThan,
@@ -185,7 +185,7 @@ fn test_less_than() {
 #[test]
 fn test_less_than_or_equal() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(1)),
             Instruction::LessEqual,
@@ -205,7 +205,7 @@ fn test_less_than_or_equal() {
 #[test]
 fn test_greater_than() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(2)),
             Instruction::Push(Variant::Integer(1)),
             Instruction::GreaterThan,
@@ -225,7 +225,7 @@ fn test_greater_than() {
 #[test]
 fn test_greater_than_or_equal() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(1)),
             Instruction::GreaterEqual,
@@ -245,7 +245,7 @@ fn test_greater_than_or_equal() {
 #[test]
 fn test_not_equal() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
             Instruction::NotEqual,

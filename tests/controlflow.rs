@@ -5,7 +5,7 @@ use bytevm::variant::Variant;
 #[test]
 fn test_jump() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Integer(1)),
             Instruction::Jump(4),
             Instruction::Push(Variant::Integer(2)),
@@ -25,7 +25,7 @@ fn test_jump() {
 #[test]
 fn test_jump_if_false() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Boolean(false)),
             Instruction::JumpIfFalse(4),
             Instruction::Push(Variant::Integer(1)),
@@ -45,7 +45,7 @@ fn test_jump_if_false() {
 #[test]
 fn test_dont_jump_if_true() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Boolean(true)),
             Instruction::JumpIfFalse(4),
             Instruction::Push(Variant::Integer(1)),
@@ -65,7 +65,7 @@ fn test_dont_jump_if_true() {
 #[test]
 fn test_for_while_loop() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Set i = 0
             Instruction::Push(Variant::Integer(0)),
             Instruction::SetLocal(0),
@@ -114,7 +114,7 @@ fn test_foreach_array_loop() {
     let item = 3;
 
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Create an array with 3 elements
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),
@@ -180,7 +180,7 @@ fn test_foreach_dictionary_loop() {
     let item = 4;
 
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Create a dictionary with 3 key-value pairs
             Instruction::Push(Variant::String(String::from("key1"))),
             Instruction::Push(Variant::Integer(1)),

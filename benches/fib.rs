@@ -8,7 +8,7 @@ fn fibonacci(input: i64) -> i64 {
 
     let mut program = Program::default();
     
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
         Instruction::Push(Variant::Integer(input)),
         Instruction::SetLocal(0),
         Instruction::Push(Variant::Identifier(String::from("fib"))),

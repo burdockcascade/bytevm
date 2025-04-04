@@ -5,7 +5,7 @@ use bytevm::variant::Variant;
 #[test]
 fn test_get_variable() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Set local 0
             Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
@@ -31,7 +31,7 @@ fn test_get_variable() {
 #[test]
 fn test_overwrite_local() {
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // Set local 0
             Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),

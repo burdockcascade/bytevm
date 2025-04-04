@@ -7,7 +7,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 fn test_function_call() {
     let mut program = Program::default();
     
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
         Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
         Instruction::Push(Variant::Integer(2)),

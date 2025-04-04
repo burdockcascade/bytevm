@@ -6,7 +6,7 @@ use bytevm::variant::Variant;
 fn test_user_defined_function() {
     
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             // main
             Instruction::Push(Variant::Integer(1)),
             Instruction::SetLocal(0),
@@ -39,7 +39,7 @@ fn test_user_defined_function() {
 fn test_builtin_function() {
     
     let mut program = Program::default();
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
             Instruction::Push(Variant::Identifier(String::from("add"))),
             Instruction::Push(Variant::Integer(1)),
             Instruction::Push(Variant::Integer(2)),

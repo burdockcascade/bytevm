@@ -113,8 +113,4 @@ impl Program {
         });
     }
     
-    pub fn add_main_function(&mut self, instructions: Vec<Instruction>) {
-        self.add_function(String::from("main"), 0, instructions);
-    }
-    
 }

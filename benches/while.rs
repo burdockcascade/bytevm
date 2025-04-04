@@ -8,7 +8,7 @@ fn do_while(input: i64) -> i64 {
 
     let mut program = Program::default();
     
-    program.add_main_function(vec![
+    program.add_function(String::from("main"), 1, vec![
         // Set i = 0
         Instruction::Push(Variant::Integer(0)),
         Instruction::SetLocal(0),
