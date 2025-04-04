@@ -23,9 +23,6 @@ pub enum Variant {
     // Boolean is a boolean value
     Boolean(bool),
 
-    // Identifier is a string that represents the name of a variable or function
-    Identifier(String),
-
     // GlobalReference is a string that represents a global variable
     GlobalReference(String),
     
@@ -59,7 +56,6 @@ impl Display for Variant {
             Variant::Float(fl) => write!(f, "{}", fl),
             Variant::String(s) => write!(f, "{}", s),
             Variant::Boolean(b) => write!(f, "{}", b),
-            Variant::Identifier(s) => write!(f, "{}", s),
             Variant::Array(a) => {
                 let a = a.borrow();
                 write!(f, "[")?;
@@ -146,7 +142,6 @@ impl PartialEq for Variant {
             (Variant::Float(lhs), Variant::Float(rhs)) => lhs == rhs,
             (Variant::String(lhs), Variant::String(rhs)) => lhs == rhs,
             (Variant::Boolean(lhs), Variant::Boolean(rhs)) => lhs == rhs,
-            (Variant::Identifier(lhs), Variant::Identifier(rhs)) => lhs == rhs,
             (Variant::Array(lhs), Variant::Array(rhs)) => {
                 let lhs = lhs.borrow();
                 let rhs = rhs.borrow();
@@ -196,7 +191,6 @@ impl Hash for Variant {
             Variant::Float(f) => f.to_bits().hash(state),
             Variant::String(s) => s.hash(state),
             Variant::Boolean(b) => b.hash(state),
-            Variant::Identifier(s) => s.hash(state),
             Variant::Array(a) => {
                 let a = a.borrow();
                 a.len().hash(state);
