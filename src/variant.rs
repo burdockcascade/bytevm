@@ -147,6 +147,36 @@ impl PartialEq for Variant {
             (Variant::String(lhs), Variant::String(rhs)) => lhs == rhs,
             (Variant::Boolean(lhs), Variant::Boolean(rhs)) => lhs == rhs,
             (Variant::Identifier(lhs), Variant::Identifier(rhs)) => lhs == rhs,
+            (Variant::Array(lhs), Variant::Array(rhs)) => {
+                let lhs = lhs.borrow();
+                let rhs = rhs.borrow();
+                if lhs.len() != rhs.len() {
+                    return false;
+                }
+                for (l, r) in lhs.iter().zip(rhs.iter()) {
+                    if l != r {
+                        return false;
+                    }
+                }
+                true
+            },
+            (Variant::Dictionary(lhs), Variant::Dictionary(rhs)) => {
+                let lhs = lhs.borrow();
+                let rhs = rhs.borrow();
+                if lhs.len() != rhs.len() {
+                    return false;
+                }
+                for (k, v) in lhs.iter() {
+                    if let Some(v2) = rhs.get(k) {
+                        if v != v2 {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                true
+            },
             _ => false
         }
     }
