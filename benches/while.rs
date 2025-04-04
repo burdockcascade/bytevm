@@ -44,7 +44,7 @@ fn do_while(input: i64) -> i64 {
     vm.run(None).unwrap().result.unwrap().into()
 }
 
-fn bench_fibonacci(c: &mut Criterion) {
+fn bench_while_loop(c: &mut Criterion) {
     let mut group = c.benchmark_group("while");
     for i in [10, 100, 1000].iter() {
         group.bench_function(criterion::BenchmarkId::from_parameter(i), |b| {
@@ -54,5 +54,5 @@ fn bench_fibonacci(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_fibonacci);
+criterion_group!(benches, bench_while_loop);
 criterion_main!(benches);
