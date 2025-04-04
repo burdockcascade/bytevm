@@ -7,7 +7,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 fn test_variable_set() {
     let mut program = Program::default();
 
-    program.add_function(String::from("main"), 1, vec![
+    program.add_function(String::from("main"), 0, vec![
         Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
         Instruction::Return,
@@ -21,7 +21,7 @@ fn test_variable_set() {
 fn test_variable_get() {
     let mut program = Program::default();
 
-    program.add_function(String::from("main"), 1, vec![
+    program.add_function(String::from("main"), 0, vec![
         Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
         Instruction::GetLocal(0),
@@ -36,7 +36,7 @@ fn test_variable_get() {
 fn test_variable_overwrite() {
     let mut program = Program::default();
 
-    program.add_function(String::from("main"), 1, vec![
+    program.add_function(String::from("main"), 0, vec![
         Instruction::Push(Variant::Integer(1)),
         Instruction::SetLocal(0),
         Instruction::Push(Variant::Integer(2)),
