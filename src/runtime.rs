@@ -103,7 +103,8 @@ impl Vm {
         trace!("=== Executing function: {} ====", f.name);
         trace!("Parameters: {:?}", parameters);
         trace!("Instructions: {:?}", f.instructions);
-        
+
+        let mut return_value= None;
         let mut pc = 0;
         let mut frame = StackFrame {
             locals: parameters,
@@ -191,11 +192,8 @@ impl Vm {
                 },
 
                 Instruction::Return => {
-                    trace!("=== Returning from function: {} ====", f.name);
-                    return Ok(VmExecutionResult {
-                        result: frame.operands.pop(),
-                        run_time: start.elapsed()
-                    });
+                    return_value = frame.operands.pop();
+                    break
                 }
 
                 // Assert
@@ -523,7 +521,7 @@ impl Vm {
         trace!("=== Finished executing function: {} ====", f.name);
 
         Ok(VmExecutionResult {
-            result: None,
+            result: return_value,
             run_time: start.elapsed()
         })
 
