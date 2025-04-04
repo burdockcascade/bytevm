@@ -26,6 +26,9 @@ pub enum Variant {
     // Identifier is a string that represents the name of a variable or function
     Identifier(String),
 
+    // GlobalReference is a string that represents a global variable
+    GlobalReference(String),
+    
     // FunctionPointer is a pointer to a function
     FunctionPointer(usize),
 
@@ -79,6 +82,7 @@ impl Display for Variant {
                 }
                 write!(f, "}}")
             }
+            Variant::GlobalReference(s) => write!(f, "GlobalReference({})", s),
             Variant::FunctionPointer(address) => write!(f, "FunctionPointer({})", address)
         }
     }
@@ -178,6 +182,7 @@ impl Hash for Variant {
                     v.hash(state);
                 }
             }
+            Variant::GlobalReference(s) => s.hash(state),
             Variant::FunctionPointer(address) => address.hash(state)
         }
     }

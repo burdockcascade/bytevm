@@ -136,49 +136,53 @@ impl Vm {
                     }
                     args.reverse();
 
-                    // Get the function name from the stack
-                    let name = match frame.pop_operand() {
-                        Variant::Identifier(name) => name,
-                        _ => return Err(VmError::RuntimeError {
-                            message: "Function name must be a string".to_string()
-                        })
-                    };
-
-                    match self.globals.get(&name) {
-                        Some(func) => {
-                            match func {
-                                GlobalEntry::NativeFunction { .. } => {
-                                    let function = self.native_functions.get(&name).unwrap();
-                                    let result = function(args);
-                                    if let Some(result) = result {
-                                        frame.push_operand(result);
-                                    }
-
-                                },
-                                GlobalEntry::UserDefinedFunction { index: address, .. } => {
-                                    match self.functions.get(*address) {
-                                        Some(func) => {
-                                            match self.execute(func, args) {
-                                                Ok(result) => {
-                                                    match result.result {
-                                                        Some(value) => frame.push_operand(value),
-                                                        None => {}
-                                                    }
-                                                },
-                                                Err(err) => {
-                                                    return Err(err);
-                                                }
+                    match frame.pop_operand() {
+                        Variant::GlobalReference(name) => {
+                            match self.globals.get(name.as_str()) {
+                                Some(GlobalEntry::UserDefinedFunction { index, .. }) => {
+                                    match self.functions.get(*index) {
+                                        Some(f) => {
+                                            if let Some(result) = self.execute(f, args)?.result {
+                                                frame.push_operand(result);
                                             }
-                                        }
+                                        },
                                         None => return Err(VmError::RuntimeError {
-                                            message: format!("Function not found: {}", name)
+                                            message: format!("Function not found: {}", index)
                                         })
+                                    };
+                                },
+                                Some(GlobalEntry::NativeFunction { .. }) => {
+                                    let func = match self.native_functions.get(name.as_str()) {
+                                        Some(func) => func,
+                                        None => return Err(VmError::RuntimeError {
+                                            message: format!("Native function not found: {}", name)
+                                        })
+                                    };
+                                    match func(args) {
+                                        Some(value) => frame.push_operand(value),
+                                        None => {}
                                     }
                                 }
+                                None => return Err(VmError::RuntimeError {
+                                    message: format!("Function not found: {}", name)
+                                })
                             }
                         },
-                        None => return Err(VmError::RuntimeError {
-                            message: format!("Function not found: {}", name)
+                        Variant::FunctionPointer(address) => {
+                            // Check if the function is a user-defined function
+                            match self.functions.get(address) {
+                                Some(func) => {
+                                    if let Some(result) = self.execute(func, args)?.result {
+                                        frame.push_operand(result);
+                                    }
+                                }
+                                None => return Err(VmError::RuntimeError {
+                                    message: format!("Function not found: {}", address)
+                                })
+                            }
+                        }
+                        _ => return Err(VmError::RuntimeError {
+                            message: format!("Function call must either be to a global function or a function pointer, but got {:?}", instruction)
                         })
                     }
 
