@@ -5,11 +5,12 @@ use log::{debug, trace};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct VmExecutionResult {
     pub result: Option<Variant>,
-    pub run_time: u128,
+    pub run_time: Duration,
 }
 
 #[derive(Debug)]
@@ -193,7 +194,7 @@ impl Vm {
                     trace!("=== Returning from function: {} ====", f.name);
                     return Ok(VmExecutionResult {
                         result: frame.operands.pop(),
-                        run_time: start.elapsed().as_nanos()
+                        run_time: start.elapsed()
                     });
                 }
 
@@ -525,7 +526,7 @@ impl Vm {
 
         Ok(VmExecutionResult {
             result: None,
-            run_time: start.elapsed().as_nanos()
+            run_time: start.elapsed()
         })
 
     }
