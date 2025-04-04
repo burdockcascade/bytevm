@@ -26,3 +26,7 @@ harness = false
 [[bench]]
 name = "functioncall"
 harness = false
+
+[[bench]]
+name = "bytecode"
+harness = false
