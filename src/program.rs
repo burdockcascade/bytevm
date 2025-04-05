@@ -103,5 +103,9 @@ impl Program {
             instructions
         });
     }
+
+    pub fn add_symbol(&mut self, name: String, entry: SymbolEntry) {
+        self.symbol_table.insert(name, entry);
+    }
     
 }
