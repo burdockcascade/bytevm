@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0](https://github.com/burdockcascade/bytevm/compare/v0.4.1...v0.5.0) (2025-04-05)
+
+
+### Features
+
+* Add GlobalReference and FunctionPointer for function calls ([57c3a65](https://github.com/burdockcascade/bytevm/commit/57c3a65199061d15d53f7e4d6796189cd5d7e19f))
+* add support for addition of Array and Dictionary variants ([cf98251](https://github.com/burdockcascade/bytevm/commit/cf982517b9d62a655d40a52bc03b2fe20aa1e086))
+* implement equality checks for Array and Dictionary variants ([c47171e](https://github.com/burdockcascade/bytevm/commit/c47171e61bb2710f40c501939251be2eef3e94d9))
+
+
+### Bug Fixes
+
+* change run_time type to Duration in VmExecutionResult ([578ee41](https://github.com/burdockcascade/bytevm/commit/578ee41599bdadb3d37d93207fd0b67677e15931))
+* correct syntax for config-file in release.yml ([4d991d6](https://github.com/burdockcascade/bytevm/commit/4d991d62feff141acbc1eda79cfaee5374ca488b))
+* update function arity in test cases for variable operations ([ac559f2](https://github.com/burdockcascade/bytevm/commit/ac559f280d147b74c98c0663750e5e28f0c777e7))
+
 ## [0.4.1](https://github.com/burdockcascade/bytevm/compare/v0.4.0...v0.4.1) (2025-04-02)
 
 
