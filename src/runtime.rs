@@ -23,21 +23,13 @@ pub enum VmError {
     }
 }
 
+#[derive(Default, Debug)]
 pub struct Vm {
     functions: Vec<Function>,
     globals: HashMap<String, SymbolEntry>,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
 
-impl Default for Vm {
-    fn default() -> Self {
-        Vm {
-            functions: Default::default(),
-            globals: HashMap::new(),
-            native_functions: HashMap::new()
-        }
-    }
-}
 
 impl Vm {
 
