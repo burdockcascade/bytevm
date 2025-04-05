@@ -84,19 +84,10 @@ pub struct Function {
     pub instructions: Vec<Instruction>
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct Program {
     pub globals: HashMap<String, GlobalEntry>,
     pub functions: Vec<Function>
-}
-
-impl Default for Program {
-    fn default() -> Self {
-        Program {
-            globals: Default::default(),
-            functions: Default::default(),
-        }
-    }
 }
 
 impl Program {
