@@ -7,16 +7,16 @@ fn test_user_defined_function() {
     
     let mut program = Program::default();
     program.add_function(String::from("main"), 1, vec![
-            // main
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::SetLocal(0),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::SetLocal(1),
-            Instruction::Push(Variant::GlobalReference(String::from("add"))),
-            Instruction::GetLocal(0),
-            Instruction::GetLocal(1),
-            Instruction::FunctionCall(2),
-            Instruction::Return
+        // main
+        Instruction::Push(Variant::Integer(1)),
+        Instruction::SetLocal(0),
+        Instruction::Push(Variant::Integer(2)),
+        Instruction::SetLocal(1),
+        Instruction::Push(Variant::SymbolReference(String::from("add"))),
+        Instruction::GetLocal(0),
+        Instruction::GetLocal(1),
+        Instruction::FunctionCall(2),
+        Instruction::Return
         ]
     );
     
@@ -40,11 +40,11 @@ fn test_builtin_function() {
     
     let mut program = Program::default();
     program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::GlobalReference(String::from("native_add"))),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::FunctionCall(2),
-            Instruction::Return
+        Instruction::Push(Variant::SymbolReference(String::from("native_add"))),
+        Instruction::Push(Variant::Integer(1)),
+        Instruction::Push(Variant::Integer(2)),
+        Instruction::FunctionCall(2),
+        Instruction::Return
         ]
     );
 

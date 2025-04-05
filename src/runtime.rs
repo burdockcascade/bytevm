@@ -131,7 +131,7 @@ impl Vm {
                     args.reverse();
 
                     match frame.pop_operand() {
-                        Variant::GlobalReference(name) => {
+                        Variant::SymbolReference(name) => {
                             match self.globals.get(name.as_str()) {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {

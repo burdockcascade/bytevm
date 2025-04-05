@@ -12,7 +12,7 @@ fn test_function_call() {
         Instruction::SetLocal(0),
         Instruction::Push(Variant::Integer(2)),
         Instruction::SetLocal(1),
-        Instruction::Push(Variant::GlobalReference(String::from("add"))),
+        Instruction::Push(Variant::SymbolReference(String::from("add"))),
         Instruction::GetLocal(0),
         Instruction::GetLocal(1),
         Instruction::FunctionCall(2),
