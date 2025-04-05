@@ -1,4 +1,4 @@
-use crate::program::{Function, GlobalEntry, Instruction, Program};
+use crate::program::{Function, SymbolEntry, Instruction, Program};
 use crate::stack::StackFrame;
 use crate::variant::Variant;
 use log::{debug, trace};
@@ -25,7 +25,7 @@ pub enum VmError {
 
 pub struct Vm {
     functions: Vec<Function>,
-    globals: HashMap<String, GlobalEntry>,
+    globals: HashMap<String, SymbolEntry>,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
 
@@ -43,7 +43,7 @@ impl Vm {
 
     pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
         self.native_functions.insert(name.clone(), function);
-        self.globals.insert(name.clone(), GlobalEntry::NativeFunction {
+        self.globals.insert(name.clone(), SymbolEntry::NativeFunction {
             arity: 0
         });
     }
@@ -51,11 +51,11 @@ impl Vm {
     pub fn load_program(&mut self, program: Program) {
 
         debug!("Loaded program");
-        trace!("Globals: {:?}", program.globals);
+        trace!("Globals: {:?}", program.symbol_table);
         trace!("Functions: {:?}", program.functions);
 
         self.functions.extend(program.functions);
-        self.globals.extend(program.globals.into_iter());
+        self.globals.extend(program.symbol_table.into_iter());
     }
 
     pub fn run(&mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
@@ -63,7 +63,7 @@ impl Vm {
         let function_index = match entry_point {
             Some(label) => match self.globals.get(&label) {
                 Some(symbol) => match symbol {
-                    GlobalEntry::UserDefinedFunction { index: address, .. } => *address,
+                    SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
                         message: format!("Entry point is not a function: {}", label)
                     })
@@ -74,7 +74,7 @@ impl Vm {
             },
             None => match self.globals.get("main") {
                 Some(symbol) => match symbol {
-                    GlobalEntry::UserDefinedFunction { index: address, .. } => *address,
+                    SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
                         message: "Main function not found".to_string()
                     })
@@ -141,7 +141,7 @@ impl Vm {
                     match frame.pop_operand() {
                         Variant::GlobalReference(name) => {
                             match self.globals.get(name.as_str()) {
-                                Some(GlobalEntry::UserDefinedFunction { index, .. }) => {
+                                Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
                                             if let Some(result) = self.execute(f, args)?.result {
@@ -153,7 +153,7 @@ impl Vm {
                                         })
                                     };
                                 },
-                                Some(GlobalEntry::NativeFunction { .. }) => {
+                                Some(SymbolEntry::NativeFunction { .. }) => {
                                     let func = match self.native_functions.get(name.as_str()) {
                                         Some(func) => func,
                                         None => return Err(VmError::RuntimeError {

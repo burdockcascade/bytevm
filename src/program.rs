@@ -67,7 +67,7 @@ pub enum Instruction {
 }
 
 #[derive(Debug, Clone)]
-pub enum GlobalEntry {
+pub enum SymbolEntry {
     NativeFunction {
         arity: usize
     },
@@ -86,14 +86,14 @@ pub struct Function {
 
 #[derive(Default, Debug, Clone)]
 pub struct Program {
-    pub globals: HashMap<String, GlobalEntry>,
+    pub symbol_table: HashMap<String, SymbolEntry>,
     pub functions: Vec<Function>
 }
 
 impl Program {
     
     pub fn add_function(&mut self, name: String, arity: usize, instructions: Vec<Instruction>) {
-        self.globals.insert(name.clone(), GlobalEntry::UserDefinedFunction {
+        self.symbol_table.insert(name.clone(), SymbolEntry::UserDefinedFunction {
             index: self.functions.len(),
             arity
         });
