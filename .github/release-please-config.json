@@ -1,0 +1,20 @@
+{
+  "changelog-sections": [
+    {
+      "title": "Features",
+      "labels": ["feat"]
+    },
+    {
+      "title": "Fixes",
+      "labels": ["fix", "bug"]
+    },
+    {
+      "title": "Documentation",
+      "labels": ["docs"]
+    },
+    {
+      "title": "Refactoring",
+      "labels": ["refactor"]
+    }
+  ]
+}
