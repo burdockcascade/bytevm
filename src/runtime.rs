@@ -374,38 +374,45 @@ impl Vm {
 
                 // Comparison instructions
 
-                Instruction::Equal => {
-                    let a = frame.pop_operand();
-                    let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b == a));
-                    pc += 1;
-                },
-
                 Instruction::Add => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(b + a);
+                    let a = frame.pop_operand();
+                    frame.push_operand(a + b);
                     pc += 1;
                 },
 
                 Instruction::Sub => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(b - a);
+                    let a = frame.pop_operand();
+                    frame.push_operand(a - b);
                     pc += 1;
                 },
 
                 Instruction::Mul => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(b * a);
+                    let a = frame.pop_operand();
+                    frame.push_operand(a * b);
                     pc += 1;
                 },
 
                 Instruction::Div => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(b / a);
+                    let a = frame.pop_operand();
+                    frame.push_operand(a / b);
+                    pc += 1;
+                },
+
+                Instruction::Mod => {
+                    let b = frame.pop_operand();
+                    let a = frame.pop_operand();
+                    frame.push_operand(a % b);
+                    pc += 1;
+                },
+
+                Instruction::Pow => {
+                    let b = frame.pop_operand();
+                    let a = frame.pop_operand();
+                    frame.push_operand(a.pow(&b));
                     pc += 1;
                 },
 
@@ -415,72 +422,65 @@ impl Vm {
                     pc += 1;
                 },
 
-                Instruction::GreaterThan => {
+                Instruction::Negate => {
                     let a = frame.pop_operand();
+                    frame.push_operand(-a);
+                    pc += 1;
+                },
+
+                Instruction::Equal => {
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b > a));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a == b));
+                    pc += 1;
+                },
+
+                Instruction::GreaterThan => {
+                    let b = frame.pop_operand();
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a > b));
                     pc += 1;
                 }
 
                 Instruction::LessThan => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b < a));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a < b));
                     pc += 1;
                 },
 
                 Instruction::LessEqual => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b <= a));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a <= b));
                     pc += 1;
                 },
 
                 Instruction::GreaterEqual => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b >= a));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a >= b));
                     pc += 1;
                 },
 
                 Instruction::NotEqual => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b != a));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a != b));
                     pc += 1;
                 },
 
                 Instruction::Or => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b.into() || a.into()));
+                    let a = frame.pop_operand();
+                    frame.push_operand(Variant::Boolean(a.into() || b.into()));
                     pc += 1;
                 },
 
                 Instruction::And => {
-                    let a = frame.pop_operand();
                     let b = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(b.into() && a.into()));
-                    pc += 1;
-                },
-
-                Instruction::Mod => {
                     let a = frame.pop_operand();
-                    let b = frame.pop_operand();
-                    frame.push_operand(b % a);
-                    pc += 1;
-                },
-
-                Instruction::Pow => {
-                    let a = frame.pop_operand();
-                    let b = frame.pop_operand();
-                    frame.push_operand(b.pow(&a));
-                    pc += 1;
-                },
-
-                Instruction::Negate => {
-                    let a = frame.pop_operand();
-                    frame.push_operand(-a);
+                    frame.push_operand(Variant::Boolean(a.into() && b.into()));
                     pc += 1;
                 },
 
