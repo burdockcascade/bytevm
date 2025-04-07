@@ -22,7 +22,7 @@ program.add_function(String::from("main"), 0, BlockEncoder::default()
 
     // Declare a local variable to hold the input
     .declare_local("n")
-    .push_integer(input)
+    .push_integer(10)
     .set_local("n")
     
     // Call the fib function
