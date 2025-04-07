@@ -188,18 +188,6 @@ impl Vm {
                     break
                 }
 
-                // Assert
-
-                Instruction::Assert => {
-                    let value: bool = frame.pop_operand().into();
-                    if !value {
-                        return Err(VmError::RuntimeError {
-                            message: "Assertion failed".to_string()
-                        });
-                    }
-                    pc += 1;
-                },
-
                 // Operands
 
                 Instruction::Push(value) => {

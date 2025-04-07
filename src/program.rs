@@ -4,8 +4,6 @@ use std::collections::HashMap;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
 
-    Assert,
-
     // Variables
     SetLocal(usize),
     GetLocal(usize),
