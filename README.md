@@ -37,7 +37,7 @@ program.add_function(String::from("main"), 0, BlockEncoder::default()
     .encode()
 );
 
-program.add_function(String::from("fib"), 2, BlockEncoder::default()
+program.add_function(String::from("fib"), 1, BlockEncoder::default()
 
     // Declare local variables for the Fibonacci function
     .declare_local("n")
