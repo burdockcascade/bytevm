@@ -7,13 +7,13 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::time::Duration;
 
-#[derive(Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct VmExecutionResult {
     pub result: Option<Variant>,
     pub run_time: Duration,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum VmError {
     RuntimeError {
         message: String,
@@ -23,7 +23,7 @@ pub enum VmError {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Vm {
     functions: Vec<Function>,
     globals: HashMap<String, SymbolEntry>,
