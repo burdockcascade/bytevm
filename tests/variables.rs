@@ -1,23 +1,18 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
 #[test]
 fn test_get_variable() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            // Set local 0
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::SetLocal(0),
-            
-            // Set local 1
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::SetLocal(1),
-            
-            // Get local 0
-            Instruction::GetLocal(0),
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .declare_local("a")
+        .push_integer(1)
+        .set_local("a")
+        .get_local("a")
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -31,19 +26,15 @@ fn test_get_variable() {
 #[test]
 fn test_overwrite_local() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            // Set local 0
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::SetLocal(0),
-
-            // Set local 0
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::SetLocal(0),
-
-            // Get local 0
-            Instruction::GetLocal(0),
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .declare_local("a")
+        .push_integer(1)
+        .set_local("a")
+        .push_integer(2)
+        .set_local("a")
+        .get_local("a")
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();

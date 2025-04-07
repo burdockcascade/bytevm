@@ -1,4 +1,5 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
@@ -10,36 +11,61 @@ fn test_fib() {
 
     let mut program  = Program::default();
 
-    program.add_function(String::from("main"), 0, vec![
-        Instruction::Push(Variant::Integer(input)),
-        Instruction::SetLocal(0),
-        Instruction::Push(Variant::FunctionPointer(1)),
-        Instruction::GetLocal(0),
-        Instruction::FunctionCall(1),
-        Instruction::Return,
-    ]);
+    program.add_function(String::from("main"), 0, BlockEncoder::default()
+
+        // Declare a local variable to hold the input
+        .declare_local("n")
+        .push_integer(input)
+        .set_local("n")
+
+        // Call the fib function
+        .push_function_pointer(1)
+        .get_local("n")
+        .function_call(1)
+
+        // Return the result
+        .return_value()
+
+        // encode
+        .encode()
+    );
     
-    program.add_function(String::from("fib"), 2, vec![
-        Instruction::GetLocal(0),
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::LessEqual,
-        Instruction::JumpIfFalse(7),
-        Instruction::GetLocal(0),
-        Instruction::Return,
-        Instruction::Jump(7),
-        Instruction::Push(Variant::FunctionPointer(1)),
-        Instruction::GetLocal(0),
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Sub,
-        Instruction::FunctionCall(1),
-        Instruction::Push(Variant::FunctionPointer(1)),
-        Instruction::GetLocal(0),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::Sub,
-        Instruction::FunctionCall(1),
-        Instruction::Add,
-        Instruction::Return,
-    ]);
+    program.add_function(String::from("fib"), 2, BlockEncoder::default()
+        // Declare local variables for the Fibonacci function
+        .declare_local("n")
+
+        // if n <= 1 then return n
+        .get_local("n")
+        .push_integer(1)
+        .less_than_or_equal()
+        .jump_if_false("end")
+        .get_local("n")
+        .return_value()
+        .add_label("end")
+
+        // fib(n - 1)
+        .push_function_pointer(1)
+        .get_local("n")
+        .push_integer(1)
+        .sub()
+        .function_call(1)
+
+        // fib(n - 2)
+        .push_function_pointer(1)
+        .get_local("n")
+        .push_integer(2)
+        .sub()
+        .function_call(1)
+
+        // add the results of fib(n-1) and fib(n-2)
+        .add()
+
+        // return the result
+        .return_value()
+
+        // encode
+        .encode()
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);

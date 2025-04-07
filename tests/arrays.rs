@@ -1,4 +1,5 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
@@ -7,16 +8,14 @@ fn test_create_array() {
 
     let mut program = Program::default();
 
-    program.add_function(String::from("main"), 1, vec![
-        // Create array [1, 2, 3]
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::Push(Variant::Integer(3)),
-        Instruction::CreateArray(3),
-        
-        // Return
-        Instruction::Return
-    ]);
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(2)
+        .push_integer(3)
+        .create_array(3)
+        .return_value()
+        .encode()
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -37,20 +36,19 @@ fn test_create_array() {
 fn test_get_array_element() {
 
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-        // Create array [1, 2, 3]
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::Push(Variant::Integer(3)),
-        Instruction::CreateArray(3),
-
-        // Get array[1]
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::GetArrayItem,
-
-        // Return
-        Instruction::Return
-    ]);
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .declare_local("arr")
+        .push_integer(1)
+        .push_integer(2)
+        .push_integer(3)
+        .create_array(3)
+        .set_local("arr")
+        .get_local("arr")
+        .push_integer(1)
+        .get_array_item()
+        .return_value()
+        .encode()
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -63,28 +61,31 @@ fn test_set_array_element() {
 
     let mut program = Program::default();
 
-    program.add_function(String::from("main"), 1, vec![
-        // Create array [1, 2, 3]
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::Push(Variant::Integer(3)),
-        Instruction::CreateArray(3),
-        Instruction::SetLocal(0),
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
 
-        // Set array[1] = 4
-        Instruction::GetLocal(0),
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Push(Variant::Integer(4)),
-        Instruction::SetArrayItem,
+        // Create an array with 3 elements
+        .declare_local("arr")
+        .push_integer(1)
+        .push_integer(2)
+        .push_integer(3)
+        .create_array(3)
+        .set_local("arr")
 
-        // Get array[1]
-        Instruction::GetLocal(0),
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::GetArrayItem,
+        // Set the second element to 4
+        .get_local("arr")
+        .push_integer(1)
+        .push_integer(4)
+        .set_array_item()
 
-        // Return
-        Instruction::Return
-    ]);
+        // Return the second element
+        .get_local("arr")
+        .push_integer(1)
+        .get_array_item()
+        .return_value()
+
+        // Encode the program
+        .encode()
+    );
 
     let mut vm = Vm::default();
     vm.load_program(program);
@@ -95,19 +96,17 @@ fn test_set_array_element() {
 #[test]
 fn test_get_array_length() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            // Create array [1, 2, 3]
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::CreateArray(3),
-
-            // Get array length
-            Instruction::GetArrayLength,
-
-            // Return
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .declare_local("arr")
+        .push_integer(1)
+        .push_integer(2)
+        .push_integer(3)
+        .create_array(3)
+        .set_local("arr")
+        .get_local("arr")
+        .get_array_length()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();

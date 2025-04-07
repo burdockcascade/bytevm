@@ -1,4 +1,5 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
@@ -10,26 +11,19 @@ fn test_create_dictionary() {
     let key3 = true;
 
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        // Create a dictionary with 3 key-value pairs
+        .push_string(key1.clone())
+        .push_integer(1)
+        .push_integer(key2.clone())
+        .push_integer(2)
+        .push_boolean(key3.clone())
+        .push_integer(3)
+        .create_dictionary(3)
 
-            // first entry, "key1" = 1
-            Instruction::Push(Variant::String(key1.clone())),
-            Instruction::Push(Variant::Integer(1)),
-
-            // second entry, 7 = 2
-            Instruction::Push(Variant::Integer(key2)),
-            Instruction::Push(Variant::Integer(2)),
-
-            // third entry. true = 3
-            Instruction::Push(Variant::Boolean(key3)),
-            Instruction::Push(Variant::Integer(3)),
-
-            // Create dictionary
-            Instruction::CreateDictionary(3),
-
-            // Return
-            Instruction::Return
-        ]
+        // Return the value
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -55,23 +49,23 @@ fn test_get_dictionary_item() {
     let key3 = String::from("key3");
 
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            // Create a dictionary with 3 key-value pairs
-            Instruction::Push(Variant::String(key1.clone())),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::String(key2.clone())),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::String(key3.clone())),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::CreateDictionary(3),
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        // Create a dictionary with 3 key-value pairs
+        .push_string(key1.clone())
+        .push_integer(1)
+        .push_string(key2.clone())
+        .push_integer(2)
+        .push_string(key3.clone())
+        .push_integer(3)
+        .create_dictionary(3)
 
-            // Get the value of key2
-            Instruction::Push(Variant::String(key1)),
-            Instruction::GetDictionaryItem,
+        // Get the value for key2
+        .push_string(key1)
+        .get_dictionary_item()
+        .return_value()
 
-            // Return the value
-            Instruction::Return
-        ]
+        // encode the program
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -89,20 +83,22 @@ fn test_get_dictionary_keys() {
     let key3 = String::from("key3");
 
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            // Create a dictionary with 3 key-value pairs
-            Instruction::Push(Variant::String(key1.clone())),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::String(key2.clone())),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::String(key3.clone())),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::CreateDictionary(3),
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        // Create a dictionary with 3 key-value pairs
+        .push_string(key1.clone())
+        .push_integer(1)
+        .push_string(key2.clone())
+        .push_integer(2)
+        .push_string(key3.clone())
+        .push_integer(3)
+        .create_dictionary(3)
 
-            // Return the value
-            Instruction::GetDictionaryKeys,
-            Instruction::Return
-        ]
+        // Get the keys of the dictionary
+        .get_dictionary_keys()
+        .return_value()
+
+        // encode the program
+        .encode()
     );
 
     let mut vm = Vm::default();

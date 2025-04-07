@@ -18,23 +18,24 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 ```rust
 let mut program = Program::default();
 
-program.add_function(String::main("main"), 0, vec![
-    Instruction::Push(Variant::Integer(1)),
-    Instruction::SetLocal(0),
-    Instruction::Push(Variant::Integer(2)),
-    Instruction::SetLocal(1),
-    Instruction::Push(Variant::GlobalReference(String::from("add"))),
-    Instruction::GetLocal(0),
-    Instruction::GetLocal(1),
-    Instruction::FunctionCall(2)
-]);
+program.add_function(String::from("main"), 1, BlockEncoder::default()
+    .push_function_pointer(1)
+    .push_integer(1)
+    .push_integer(2)
+    .function_call(2)
+    .return_value()
+    .encode(),
+);
 
-program.add_function(String::from("add"), 2, vec![
-    Instruction::GetLocal(0),
-    Instruction::GetLocal(1),
-    Instruction::Add,
-    Instruction::Return
-]);
+program.add_function(String::from("add"), 2,  BlockEncoder::default()
+    .declare_local("a")
+    .declare_local("b")
+    .get_local("a")
+    .get_local("b")
+    .add()
+    .return_value()
+    .encode()
+);
 
 let mut vm = Vm::default();
 vm.load_program(program);

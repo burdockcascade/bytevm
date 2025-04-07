@@ -1,4 +1,5 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
@@ -6,26 +7,23 @@ use bytevm::variant::Variant;
 fn test_user_defined_function() {
     
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-        // main
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::SetLocal(0),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::SetLocal(1),
-        Instruction::Push(Variant::SymbolReference(String::from("add"))),
-        Instruction::GetLocal(0),
-        Instruction::GetLocal(1),
-        Instruction::FunctionCall(2),
-        Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_function_pointer(1)
+        .push_integer(1)
+        .push_integer(2)
+        .function_call(2)
+        .return_value()
+        .encode(),
     );
     
-    program.add_function(String::from("add"), 2, vec![
-            Instruction::GetLocal(1),
-            Instruction::GetLocal(0),
-            Instruction::Add,
-            Instruction::Return
-        ]
+    program.add_function(String::from("add"), 2,  BlockEncoder::default()
+        .declare_local("a")
+        .declare_local("b")
+        .get_local("a")
+        .get_local("b")
+        .add()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -39,13 +37,13 @@ fn test_user_defined_function() {
 fn test_builtin_function() {
     
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-        Instruction::Push(Variant::SymbolReference(String::from("native_add"))),
-        Instruction::Push(Variant::Integer(1)),
-        Instruction::Push(Variant::Integer(2)),
-        Instruction::FunctionCall(2),
-        Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_symbol(String::from("native_add"))
+        .push_integer(1)
+        .push_integer(2)
+        .function_call(2)
+        .return_value()
+        .encode(),
     );
 
     let mut vm = Vm::default();

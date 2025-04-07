@@ -1,18 +1,19 @@
-use bytevm::program::{Instruction, Program};
+use bytevm::builder::BlockEncoder;
+use bytevm::program::Program;
 use bytevm::runtime::Vm;
 use bytevm::variant::Variant;
 
 #[test]
 fn test_add_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Add,
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(2)
+        .add()
+        .push_integer(3)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -26,14 +27,14 @@ fn test_add_and_compare() {
 #[test]
 fn test_add_and_compare_false() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Add,
-            Instruction::Push(Variant::Integer(4)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(2)
+        .add()
+        .push_integer(4)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -46,14 +47,14 @@ fn test_add_and_compare_false() {
 #[test]
 fn test_sub_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(5)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Sub,
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(5)
+        .push_integer(2)
+        .sub()
+        .push_integer(3)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -66,14 +67,14 @@ fn test_sub_and_compare() {
 #[test]
 fn test_mul_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Mul,
-            Instruction::Push(Variant::Integer(6)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(2)
+        .push_integer(3)
+        .mul()
+        .push_integer(6)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -86,14 +87,14 @@ fn test_mul_and_compare() {
 #[test]
 fn test_div_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(6)),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Div,
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(6)
+        .push_integer(3)
+        .div()
+        .push_integer(2)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -106,14 +107,14 @@ fn test_div_and_compare() {
 #[test]
 fn test_mod_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(7)),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Mod,
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(7)
+        .push_integer(3)
+        .modulus()
+        .push_integer(1)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -126,14 +127,14 @@ fn test_mod_and_compare() {
 #[test]
 fn test_pow_and_compare() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::Integer(3)),
-            Instruction::Pow,
-            Instruction::Push(Variant::Integer(8)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(2)
+        .push_integer(3)
+        .pow()
+        .push_integer(8)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -146,13 +147,13 @@ fn test_pow_and_compare() {
 #[test]
 fn test_negate() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Negate,
-            Instruction::Push(Variant::Integer(-2)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(2)
+        .negate()
+        .push_integer(-2)
+        .equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -165,14 +166,12 @@ fn test_negate() {
 #[test]
 fn test_less_than() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::LessThan,
-            Instruction::Push(Variant::Boolean(true)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(2)
+        .less_than()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -185,14 +184,12 @@ fn test_less_than() {
 #[test]
 fn test_less_than_or_equal() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::LessEqual,
-            Instruction::Push(Variant::Boolean(true)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(1)
+        .less_than_or_equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -205,14 +202,12 @@ fn test_less_than_or_equal() {
 #[test]
 fn test_greater_than() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::GreaterThan,
-            Instruction::Push(Variant::Boolean(true)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(2)
+        .push_integer(1)
+        .greater_than()
+        .return_value()
+        .encode()
     );
     
     let mut vm = Vm::default();
@@ -225,14 +220,12 @@ fn test_greater_than() {
 #[test]
 fn test_greater_than_or_equal() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::GreaterEqual,
-            Instruction::Push(Variant::Boolean(true)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(1)
+        .greater_than_or_equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
@@ -245,14 +238,12 @@ fn test_greater_than_or_equal() {
 #[test]
 fn test_not_equal() {
     let mut program = Program::default();
-    program.add_function(String::from("main"), 1, vec![
-            Instruction::Push(Variant::Integer(1)),
-            Instruction::Push(Variant::Integer(2)),
-            Instruction::NotEqual,
-            Instruction::Push(Variant::Boolean(true)),
-            Instruction::Equal,
-            Instruction::Return
-        ]
+    program.add_function(String::from("main"), 1, BlockEncoder::default()
+        .push_integer(1)
+        .push_integer(2)
+        .not_equal()
+        .return_value()
+        .encode()
     );
 
     let mut vm = Vm::default();
