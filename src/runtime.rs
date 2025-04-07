@@ -360,7 +360,7 @@ impl Vm {
                     }
                 },
 
-                // Comparison instructions
+                // Binary Operations
 
                 Instruction::Add => {
                     let b = frame.pop_operand();
@@ -404,17 +404,7 @@ impl Vm {
                     pc += 1;
                 },
 
-                Instruction::Not => {
-                    let a = frame.pop_operand();
-                    frame.push_operand(!a);
-                    pc += 1;
-                },
-
-                Instruction::Negate => {
-                    let a = frame.pop_operand();
-                    frame.push_operand(-a);
-                    pc += 1;
-                },
+                // Unary Operations
 
                 Instruction::Equal => {
                     let b = frame.pop_operand();
@@ -471,6 +461,19 @@ impl Vm {
                     frame.push_operand(Variant::Boolean(a.into() && b.into()));
                     pc += 1;
                 },
+
+                Instruction::Not => {
+                    let a = frame.pop_operand();
+                    frame.push_operand(!a);
+                    pc += 1;
+                },
+
+                Instruction::Negate => {
+                    let a = frame.pop_operand();
+                    frame.push_operand(-a);
+                    pc += 1;
+                },
+
 
                 // Output
                 Instruction::Print => {
