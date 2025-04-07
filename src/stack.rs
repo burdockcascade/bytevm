@@ -1,18 +1,9 @@
 use crate::variant::Variant;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct StackFrame {
     pub locals: Vec<Variant>,
     pub operands: Vec<Variant>
-}
-
-impl Default for StackFrame {
-    fn default() -> Self {
-        StackFrame {
-            locals: Vec::with_capacity(16),
-            operands: Vec::with_capacity(16),
-        }
-    }
 }
 
 impl StackFrame {
