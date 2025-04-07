@@ -18,22 +18,60 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 ```rust
 let mut program = Program::default();
 
-program.add_function(String::from("main"), 1, BlockEncoder::default()
+program.add_function(String::from("main"), 0, BlockEncoder::default()
+
+    // Declare a local variable to hold the input
+    .declare_local("n")
+    .push_integer(input)
+    .set_local("n")
+    
+    // Call the fib function
     .push_function_pointer(1)
-    .push_integer(1)
-    .push_integer(2)
-    .function_call(2)
+    .get_local("n")
+    .function_call(1)
+    
+    // Return the result
     .return_value()
-    .encode(),
+    
+    // encode
+    .encode()
 );
 
-program.add_function(String::from("add"), 2,  BlockEncoder::default()
-    .declare_local("a")
-    .declare_local("b")
-    .get_local("a")
-    .get_local("b")
-    .add()
+program.add_function(String::from("fib"), 2, BlockEncoder::default()
+
+    // Declare local variables for the Fibonacci function
+    .declare_local("n")
+    
+    // if n <= 1 then return n
+    .get_local("n")
+    .push_integer(1)
+    .less_than_or_equal()
+    .jump_if_false("end")
+    .get_local("n")
     .return_value()
+    .add_label("end")
+    
+    // fib(n - 1)
+    .push_function_pointer(1)
+    .get_local("n")
+    .push_integer(1)
+    .sub()
+    .function_call(1)
+    
+    // fib(n - 2)
+    .push_function_pointer(1)
+    .get_local("n")
+    .push_integer(2)
+    .sub()
+    .function_call(1)
+    
+    // add the results of fib(n-1) and fib(n-2)
+    .add()
+    
+    // return the result
+    .return_value()
+    
+    // encode
     .encode()
 );
 
