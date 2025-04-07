@@ -1,7 +1,7 @@
 use crate::variant::Variant;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
 
     Assert,
@@ -66,7 +66,7 @@ pub enum Instruction {
     Panic
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SymbolEntry {
     NativeFunction {
         arity: usize
@@ -77,14 +77,14 @@ pub enum SymbolEntry {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Function {
     pub name: String,
     pub arity: usize,
     pub instructions: Vec<Instruction>
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Program {
     pub symbol_table: HashMap<String, SymbolEntry>,
     pub functions: Vec<Function>
