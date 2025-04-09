@@ -26,7 +26,7 @@ impl ProgramBuilder {
         self.program.symbol_table.insert(name, entry);
     }
 
-    pub fn build(mut self) -> Program {
+    pub fn build(self) -> Program {
         self.program
     }
 }
