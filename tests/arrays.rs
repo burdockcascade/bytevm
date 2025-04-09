@@ -1,7 +1,4 @@
-use bytevm::builder::BlockEncoder;
-use bytevm::program::Program;
-use bytevm::runtime::Vm;
-use bytevm::variant::Variant;
+use bytevm::prelude::*;
 
 #[test]
 fn test_create_array() {
