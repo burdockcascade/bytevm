@@ -16,7 +16,7 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 
 ## Examples
 ```rust
-let mut program = Program::default();
+let mut program = Program::builder();
 
 program.add_function(String::from("main"), 0, BlockEncoder::default()
 
@@ -26,7 +26,7 @@ program.add_function(String::from("main"), 0, BlockEncoder::default()
     .set_local("n")
     
     // Call the fib function
-    .push_function_pointer(1)
+    .push_function_reference("fib")
     .get_local("n")
     .function_call(1)
     
@@ -52,14 +52,14 @@ program.add_function(String::from("fib"), 1, BlockEncoder::default()
     .add_label("end")
     
     // fib(n - 1)
-    .push_function_pointer(1)
+    .push_function_reference("fib")
     .get_local("n")
     .push_integer(1)
     .sub()
     .function_call(1)
     
     // fib(n - 2)
-    .push_function_pointer(1)
+    .push_function_reference("fib")
     .get_local("n")
     .push_integer(2)
     .sub()
@@ -76,7 +76,7 @@ program.add_function(String::from("fib"), 1, BlockEncoder::default()
 );
 
 let mut vm = Vm::default();
-vm.load_program(program);
+vm.load_program(program.build());
 vm.run(None);
 ```
 
