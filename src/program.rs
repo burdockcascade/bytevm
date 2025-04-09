@@ -1,5 +1,6 @@
 use crate::variant::Variant;
 use std::collections::HashMap;
+use crate::builder::ProgramBuilder;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
@@ -89,21 +90,9 @@ pub struct Program {
 }
 
 impl Program {
-    
-    pub fn add_function(&mut self, name: String, arity: usize, instructions: Vec<Instruction>) {
-        self.symbol_table.insert(name.clone(), SymbolEntry::UserDefinedFunction {
-            index: self.functions.len(),
-            arity
-        });
-        self.functions.push(Function {
-            name,
-            arity,
-            instructions
-        });
-    }
 
-    pub fn add_symbol(&mut self, name: String, entry: SymbolEntry) {
-        self.symbol_table.insert(name, entry);
+    pub fn builder() -> ProgramBuilder {
+        ProgramBuilder::default()
     }
     
 }

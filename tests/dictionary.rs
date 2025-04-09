@@ -7,8 +7,8 @@ fn test_create_dictionary() {
     let key2 = 4;
     let key3 = true;
 
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         // Create a dictionary with 3 key-value pairs
         .push_string(key1.clone())
         .push_integer(1)
@@ -20,11 +20,13 @@ fn test_create_dictionary() {
 
         // Return the value
         .return_value()
+
+        // encode the program
         .encode()
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     match result {
@@ -45,8 +47,8 @@ fn test_get_dictionary_item() {
     let key2 = String::from("key2");
     let key3 = String::from("key3");
 
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         // Create a dictionary with 3 key-value pairs
         .push_string(key1.clone())
         .push_integer(1)
@@ -66,7 +68,7 @@ fn test_get_dictionary_item() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(1));
@@ -79,8 +81,8 @@ fn test_get_dictionary_keys() {
     let key2 = String::from("key2");
     let key3 = String::from("key3");
 
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         // Create a dictionary with 3 key-value pairs
         .push_string(key1.clone())
         .push_integer(1)
@@ -99,7 +101,7 @@ fn test_get_dictionary_keys() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     // find key1 in result

@@ -2,8 +2,8 @@ use bytevm::prelude::*;
 
 #[test]
 fn test_get_variable() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .declare_local("a")
         .push_integer(1)
         .set_local("a")
@@ -13,7 +13,7 @@ fn test_get_variable() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(1));
@@ -22,8 +22,8 @@ fn test_get_variable() {
 
 #[test]
 fn test_overwrite_local() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .declare_local("a")
         .push_integer(1)
         .set_local("a")
@@ -35,7 +35,7 @@ fn test_overwrite_local() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(2));

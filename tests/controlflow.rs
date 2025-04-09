@@ -3,8 +3,8 @@ use bytevm::prelude::*;
 #[test]
 fn test_jumps() {
 
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 0, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 0, BlockEncoder::default()
 
         // create a variable to hold the result
         .declare_local("i")
@@ -41,12 +41,11 @@ fn test_jumps() {
         .get_local("i")
         .return_value()
 
-        // encode the program
         .encode()
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(10));

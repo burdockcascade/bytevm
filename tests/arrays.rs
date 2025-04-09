@@ -3,9 +3,9 @@ use bytevm::prelude::*;
 #[test]
 fn test_create_array() {
 
-    let mut program = Program::default();
+    let mut program = Program::builder();
 
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(2)
         .push_integer(3)
@@ -15,7 +15,7 @@ fn test_create_array() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     match result {
@@ -32,8 +32,8 @@ fn test_create_array() {
 #[test]
 fn test_get_array_element() {
 
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .declare_local("arr")
         .push_integer(1)
         .push_integer(2)
@@ -48,7 +48,7 @@ fn test_get_array_element() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(2));
 }
@@ -56,9 +56,9 @@ fn test_get_array_element() {
 #[test]
 fn test_set_array_element() {
 
-    let mut program = Program::default();
+    let mut program = Program::builder();
 
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    program.add_function("main", 1, BlockEncoder::default()
 
         // Create an array with 3 elements
         .declare_local("arr")
@@ -79,21 +79,19 @@ fn test_set_array_element() {
         .push_integer(1)
         .get_array_item()
         .return_value()
-
-        // Encode the program
         .encode()
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(4));
 }
 
 #[test]
 fn test_get_array_length() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .declare_local("arr")
         .push_integer(1)
         .push_integer(2)
@@ -107,7 +105,7 @@ fn test_get_array_length() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(3));
 }

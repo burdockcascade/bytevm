@@ -6,6 +6,7 @@ pub mod builder;
 
 pub mod prelude {
     pub use crate::builder::BlockEncoder;
+    pub use crate::builder::ProgramBuilder;
     pub use crate::program::Program;
     pub use crate::runtime::Vm;
     pub use crate::runtime::VmError;

@@ -1,6 +1,35 @@
-use crate::program::Instruction;
+use crate::program::{Function, Instruction, SymbolEntry};
 use crate::variant::Variant;
 use std::collections::HashMap;
+use crate::prelude::Program;
+
+#[derive(Clone, Debug, Default)]
+pub struct ProgramBuilder {
+    program: Program,
+}
+
+impl ProgramBuilder {
+
+    pub fn add_function(&mut self, name: &str, arity: usize, instructions: Vec<Instruction>) {
+        self.program.symbol_table.insert(name.to_string(), SymbolEntry::UserDefinedFunction {
+            index: self.program.functions.len(),
+            arity
+        });
+        self.program.functions.push(Function {
+            name: name.to_string(),
+            arity,
+            instructions
+        });
+    }
+
+    pub fn add_symbol(&mut self, name: String, entry: SymbolEntry) {
+        self.program.symbol_table.insert(name, entry);
+    }
+
+    pub fn build(mut self) -> Program {
+        self.program
+    }
+}
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct BlockEncoder {
@@ -97,13 +126,13 @@ impl BlockEncoder {
     }
 
     /// Pushes a symbol reference onto the stack.
-    pub fn push_symbol(&mut self, value: String) -> &mut Self {
-        self.push(Instruction::Push(Variant::SymbolReference(value)))
+    pub fn push_symbol(&mut self, value: &str) -> &mut Self {
+        self.push(Instruction::Push(Variant::SymbolReference(value.to_string())))
     }
 
     /// Pushes a function pointer onto the stack.
-    pub fn push_function_pointer(&mut self, index: usize) -> &mut Self {
-        self.push(Instruction::Push(Variant::FunctionPointer(index)))
+    pub fn push_function_reference(&mut self, index: &str) -> &mut Self {
+        self.push_symbol(index)
     }
 
     /// Add tos and tos-1 and push the result.
@@ -240,7 +269,7 @@ impl BlockEncoder {
         self.push(Instruction::Panic)
     }
 
-    // Encodes the block and resolves any pending jumps.
+    /// Returns the instructions as a vector of Instruction.
     pub fn encode(&mut self) -> Vec<Instruction> {
 
         // Insert Halt at the end of the block if not already present

@@ -2,8 +2,8 @@ use bytevm::prelude::*;
 
 #[test]
 fn test_add_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(2)
         .add()
@@ -14,7 +14,7 @@ fn test_add_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -23,8 +23,8 @@ fn test_add_and_compare() {
 
 #[test]
 fn test_add_and_compare_false() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(2)
         .add()
@@ -35,7 +35,7 @@ fn test_add_and_compare_false() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(false));
@@ -43,8 +43,8 @@ fn test_add_and_compare_false() {
 
 #[test]
 fn test_sub_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(5)
         .push_integer(2)
         .sub()
@@ -55,7 +55,7 @@ fn test_sub_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -63,8 +63,8 @@ fn test_sub_and_compare() {
 
 #[test]
 fn test_mul_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(2)
         .push_integer(3)
         .mul()
@@ -75,7 +75,7 @@ fn test_mul_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -83,8 +83,8 @@ fn test_mul_and_compare() {
 
 #[test]
 fn test_div_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(6)
         .push_integer(3)
         .div()
@@ -95,7 +95,7 @@ fn test_div_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -103,8 +103,8 @@ fn test_div_and_compare() {
 
 #[test]
 fn test_mod_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(7)
         .push_integer(3)
         .modulus()
@@ -115,7 +115,7 @@ fn test_mod_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -123,8 +123,8 @@ fn test_mod_and_compare() {
 
 #[test]
 fn test_pow_and_compare() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(2)
         .push_integer(3)
         .pow()
@@ -135,7 +135,7 @@ fn test_pow_and_compare() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -143,8 +143,8 @@ fn test_pow_and_compare() {
 
 #[test]
 fn test_negate() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(2)
         .negate()
         .push_integer(-2)
@@ -154,7 +154,7 @@ fn test_negate() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -162,8 +162,8 @@ fn test_negate() {
 
 #[test]
 fn test_less_than() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(2)
         .less_than()
@@ -172,7 +172,7 @@ fn test_less_than() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -180,8 +180,8 @@ fn test_less_than() {
 
 #[test]
 fn test_less_than_or_equal() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(1)
         .less_than_or_equal()
@@ -190,7 +190,7 @@ fn test_less_than_or_equal() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -198,8 +198,8 @@ fn test_less_than_or_equal() {
 
 #[test]
 fn test_greater_than() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(2)
         .push_integer(1)
         .greater_than()
@@ -208,7 +208,7 @@ fn test_greater_than() {
     );
     
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -216,8 +216,8 @@ fn test_greater_than() {
 
 #[test]
 fn test_greater_than_or_equal() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(1)
         .greater_than_or_equal()
@@ -226,7 +226,7 @@ fn test_greater_than_or_equal() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
@@ -234,8 +234,8 @@ fn test_greater_than_or_equal() {
 
 #[test]
 fn test_not_equal() {
-    let mut program = Program::default();
-    program.add_function(String::from("main"), 1, BlockEncoder::default()
+    let mut program = Program::builder();
+    program.add_function("main", 1, BlockEncoder::default()
         .push_integer(1)
         .push_integer(2)
         .not_equal()
@@ -244,7 +244,7 @@ fn test_not_equal() {
     );
 
     let mut vm = Vm::default();
-    vm.load_program(program);
+    vm.load_program(program.build());
     let result = vm.run(None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Boolean(true));
