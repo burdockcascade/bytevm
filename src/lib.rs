@@ -1,8 +1,8 @@
-pub mod variant;
-pub mod runtime;
+mod variant;
+mod runtime;
 mod stack;
-pub mod program;
-pub mod builder;
+mod program;
+mod builder;
 
 pub mod prelude {
     pub use crate::builder::BlockEncoder;
