@@ -26,7 +26,7 @@ pub enum VmError {
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Vm {
     functions: Vec<Function>,
-    globals: HashMap<String, SymbolEntry>,
+    symbols: HashMap<String, SymbolEntry>,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
 
@@ -35,7 +35,7 @@ impl Vm {
 
     pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
         self.native_functions.insert(name.clone(), function);
-        self.globals.insert(name.clone(), SymbolEntry::NativeFunction {
+        self.symbols.insert(name.clone(), SymbolEntry::NativeFunction {
             arity: 0
         });
     }
@@ -47,13 +47,13 @@ impl Vm {
         trace!("Functions: {:?}", program.functions);
 
         self.functions.extend(program.functions);
-        self.globals.extend(program.symbol_table.into_iter());
+        self.symbols.extend(program.symbol_table.into_iter());
     }
 
     pub fn run(&mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
 
         let function_index = match entry_point {
-            Some(label) => match self.globals.get(&label) {
+            Some(label) => match self.symbols.get(&label) {
                 Some(symbol) => match symbol {
                     SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
@@ -64,7 +64,7 @@ impl Vm {
                     message: format!("Entry point not found: {}", label)
                 })
             },
-            None => match self.globals.get("main") {
+            None => match self.symbols.get("main") {
                 Some(symbol) => match symbol {
                     SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
                     _ => return Err(VmError::RuntimeError {
@@ -106,8 +106,8 @@ impl Vm {
         let start = std::time::Instant::now();
 
         loop {
-            
-            let Some(instruction) = f.instructions.get(pc) else { 
+
+            let Some(instruction) = f.instructions.get(pc) else {
                 return Err(VmError::RuntimeError {
                     message: format!("Invalid instruction pointer {} in function {}", pc, f.name)
                 })
@@ -132,7 +132,7 @@ impl Vm {
 
                     match frame.pop_operand() {
                         Variant::SymbolReference(name) => {
-                            match self.globals.get(name.as_str()) {
+                            match self.symbols.get(name.as_str()) {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
