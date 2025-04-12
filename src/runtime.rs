@@ -1,5 +1,4 @@
 use crate::program::{Function, SymbolEntry, Instruction, Program};
-use crate::stack::StackFrame;
 use crate::variant::Variant;
 use log::{debug, trace};
 use std::cell::RefCell;
@@ -21,6 +20,36 @@ pub enum VmError {
     RuntimeWarning {
         message: String,
     }
+}
+
+
+#[derive(Clone, Default, Debug, PartialEq)]
+struct StackFrame {
+    locals: Vec<Variant>,
+    operands: Vec<Variant>
+}
+
+impl StackFrame {
+
+    fn pop_operand(&mut self) -> Variant {
+        self.operands.pop().expect("Operand stack should not be empty")
+    }
+
+    fn push_operand(&mut self, operand: Variant) {
+        self.operands.push(operand);
+    }
+
+    fn get_local(&self, index: usize) -> Variant {
+        self.locals.get(index).cloned().unwrap_or(Variant::Null)
+    }
+
+    fn set_local(&mut self, index: usize, value: Variant) {
+        if index >= self.locals.len() {
+            self.locals.resize(index + 1, Variant::Null);
+        }
+        self.locals[index] = value;
+    }
+
 }
 
 #[derive(Clone, Default, Debug, PartialEq)]

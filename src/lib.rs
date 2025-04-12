@@ -1,6 +1,5 @@
 mod variant;
 mod runtime;
-mod stack;
 mod program;
 mod builder;
 
