@@ -1,5 +1,4 @@
 use bytevm::prelude::*;
-use bytevm::prelude::Variant::FunctionPointer;
 
 #[test]
 fn test_add_and_compare() {

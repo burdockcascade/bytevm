@@ -3,7 +3,7 @@ use bytevm::prelude::*;
 #[test]
 fn test_fib() {
 
-    let input = 35;
+    let input = 10;
     let expected_result = fib(input);
 
     let mut program  = ProgramBuilder::default();

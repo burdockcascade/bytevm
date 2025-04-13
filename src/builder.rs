@@ -37,8 +37,6 @@ impl ProgramBuilder {
                 if let Instruction::FunctionCall(CallTarget::Name(name)) = instruction {
                     if let Some(SymbolEntry::UserDefinedFunction { index }) = self.program.symbol_table.get(name) {
                         *instruction = Instruction::FunctionCall(CallTarget::Index(*index));
-                    } else {
-                        panic!("Function {} not found", name);
                     }
                 }
             }
