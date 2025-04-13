@@ -71,16 +71,25 @@ pub enum SymbolEntry {
         arity: usize
     },
     UserDefinedFunction {
-        index: usize,
-        arity: usize
+        index: usize
     }
 }
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Function {
+
+    // Name of the function
     pub name: String,
+
+    // Number of arguments
     pub arity: usize,
+
+    // Number of local variables
+    pub local_count: usize,
+
+    // List of instructions
     pub instructions: Vec<Instruction>
+
 }
 
 #[derive(Clone, Default, Debug, PartialEq)]

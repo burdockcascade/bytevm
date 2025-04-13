@@ -10,25 +10,69 @@ pub struct ProgramBuilder {
 
 impl ProgramBuilder {
 
-    pub fn add_function(&mut self, name: &str, arity: usize, instructions: Vec<Instruction>) {
-        self.program.symbol_table.insert(name.to_string(), SymbolEntry::UserDefinedFunction {
-            index: self.program.functions.len(),
-            arity
-        });
-        self.program.functions.push(Function {
-            name: name.to_string(),
-            arity,
-            instructions
-        });
+    pub fn add_function(&mut self, function: Function) {
+        match self.program.symbol_table.get(&function.name) {
+            Some(SymbolEntry::UserDefinedFunction { index }) => {
+                self.program.functions[*index] = function;
+            }
+            None => {
+                self.program.symbol_table.insert(function.name.clone(), SymbolEntry::UserDefinedFunction {
+                    index: self.program.functions.len()
+                });
+                self.program.functions.push(function);
+            }
+            _ => panic!("Cannot redefine function {}", function.name),
+        }
     }
 
     pub fn add_symbol(&mut self, name: String, entry: SymbolEntry) {
         self.program.symbol_table.insert(name, entry);
     }
 
-    pub fn build(self) -> Program {
+    pub fn build(mut self) -> Program {
         self.program
     }
+}
+
+#[derive(Clone, Default, Debug, PartialEq)]
+pub struct FunctionBuilder {
+    name: String,
+    arity: usize,
+    local_count: usize,
+    body: Vec<Instruction>,
+}
+
+impl FunctionBuilder {
+
+    /// Creates a new function builder with default values.
+    pub fn name(&mut self, name: &str) -> &mut Self {
+        self.name = name.to_string();
+        self
+    }
+
+    /// Sets the number of arguments for the function.
+    pub fn arity(&mut self, arity: usize) -> &mut Self {
+        self.arity = arity;
+        self
+    }
+
+    /// Sets the body of the function.
+    pub fn body(&mut self, body: &mut BlockEncoder) -> &mut Self {
+        self.body = body.encode();
+        self.local_count = body.next_local_slot;
+        self
+    }
+
+    /// Builds the function and returns it.
+    pub fn build(&mut self) -> Function {
+        Function {
+            name: self.name.clone(),
+            arity: self.arity.clone(),
+            local_count: self.local_count,
+            instructions: self.body.clone(),
+        }
+    }
+
 }
 
 #[derive(Clone, Default, Debug, PartialEq)]
@@ -38,6 +82,7 @@ pub struct BlockEncoder {
     next_local_slot: usize,
     labels: HashMap<String, usize>,
     pending_jumps: HashMap<String, usize>,
+    known_functions: HashMap<String, usize>,
 }
 
 impl BlockEncoder {
