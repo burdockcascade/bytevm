@@ -272,14 +272,15 @@ impl Vm {
                 Instruction::SetArrayItem => {
                     let value = frame.pop_operand();
                     let index = frame.pop_operand();
-                    let array = frame.pop_operand();
-                    match array {
-                        Variant::Array(array) => {
+                    let varray = frame.pop_operand();
+                    match varray {
+                        Variant::Array(ref array) => {
                             let mut array = array.borrow_mut();
                             let index: usize = index.into();
                             array[index] = value;
+                            frame.push_operand(varray.clone());
                         },
-                        _ => return runtime_error!("Expected an array but got {:?}", array)
+                        _ => return runtime_error!("Expected an array but got {:?}", varray)
                     }
                     pc += 1;
                 },
