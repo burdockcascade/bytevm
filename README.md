@@ -75,7 +75,7 @@ program.add_function(FunctionBuilder::default()
 );
 
 let mut vm = Vm::default();
-vm.load_program(program.build());
+vm.load_program(program);
 vm.run(None);
 ```
 
