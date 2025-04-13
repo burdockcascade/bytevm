@@ -63,7 +63,7 @@ fn test_builtin_function() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    vm.register_native_function(String::from("native_add"), |args: Vec<Variant>| {
+    vm.register_native_function(String::from("native_add"), 2,|args: Vec<Variant>| {
         let a = args[0].clone();
         let b = args[1].clone();
         Some(a + b)

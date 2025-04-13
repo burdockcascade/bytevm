@@ -31,7 +31,7 @@ impl ProgramBuilder {
 
     pub fn build(mut self) -> Program {
 
-        //  Resolbe function references with function index
+        // Resolve function references with function index
         for function in &mut self.program.functions {
             for instruction in &mut function.instructions {
                 if let Instruction::FunctionCall(CallTarget::Name(name)) = instruction {

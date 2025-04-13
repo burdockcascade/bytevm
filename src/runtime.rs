@@ -70,10 +70,10 @@ pub struct Vm {
 
 impl Vm {
 
-    pub fn register_native_function(&mut self, name: String, function: fn(Vec<Variant>) -> Option<Variant>) {
+    pub fn register_native_function(&mut self, name: String, arity: usize, function: fn(Vec<Variant>) -> Option<Variant>) {
         self.native_functions.insert(name.clone(), function);
         self.symbols.insert(name.clone(), SymbolEntry::NativeFunction {
-            arity: 0
+            arity
         });
     }
     
@@ -165,33 +165,19 @@ impl Vm {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
-
-                                            let mut args = Vec::with_capacity(f.arity);
-                                            for _ in 0..f.arity {
-                                                args.push(frame.pop_operand());
-                                            }
-                                            args.reverse();
-
-                                            if let Some(result) = self.execute(f, args)?.result {
+                                            if let Some(result) = self.execute(f, self.get_function_call_args(&mut frame, f.arity))?.result {
                                                 frame.push_operand(result);
                                             }
                                         },
                                         None => return runtime_error!("Function not found: {}", index)
                                     };
                                 },
-                                Some(SymbolEntry::NativeFunction { .. }) => {
+                                Some(SymbolEntry::NativeFunction { arity }) => {
                                     let func = match self.native_functions.get(name.as_str()) {
                                         Some(func) => func,
                                         None => return runtime_error!("Native function not found: {}", name)
                                     };
-
-                                    let mut args = Vec::with_capacity(f.arity);
-                                    for _ in 0..f.arity {
-                                        args.push(frame.pop_operand());
-                                    }
-                                    args.reverse();
-
-                                    match func(args) {
+                                    match func(self.get_function_call_args(&mut frame, *arity)) {
                                         Some(value) => frame.push_operand(value),
                                         None => {}
                                     }
@@ -202,14 +188,7 @@ impl Vm {
                         CallTarget::Index(index) => {
                             match self.functions.get(*index) {
                                 Some(f) => {
-
-                                    let mut args = Vec::with_capacity(f.arity);
-                                    for _ in 0..f.arity {
-                                        args.push(frame.pop_operand());
-                                    }
-                                    args.reverse();
-
-                                    if let Some(result) = self.execute(f, args)?.result {
+                                    if let Some(result) = self.execute(f, self.get_function_call_args(&mut frame, f.arity))?.result {
                                         frame.push_operand(result);
                                     }
                                 },
@@ -529,6 +508,15 @@ impl Vm {
             run_time: start.elapsed()
         })
 
+    }
+
+    fn get_function_call_args(&self, frame: &mut StackFrame, arity: usize) -> Vec<Variant> {
+        let mut args = Vec::new();
+        for _ in 0..arity {
+            args.push(frame.pop_operand());
+        }
+        args.reverse();
+        args
     }
     
 }
