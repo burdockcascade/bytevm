@@ -63,8 +63,6 @@ fn test_fib() {
         .build()
     );
 
-
-
     let mut vm = Vm::default();
     vm.load_program(program.build());
     let result = vm.run(None).unwrap();

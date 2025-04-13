@@ -16,63 +16,62 @@ ByteVM is currently in the early stages of development. The VM is not yet featur
 
 ## Examples
 ```rust
-let mut program = Program::builder();
 
-program.add_function(String::from("main"), 0, BlockEncoder::default()
+let mut program  = ProgramBuilder::default();
 
-    // Declare a local variable to hold the input
-    .declare_local("n")
-    .push_integer(10)
-    .set_local("n")
-    
-    // Call the fib function
-    .push_function_reference("fib")
-    .get_local("n")
-    .function_call(1)
-    
-    // Return the result
-    .return_value()
-    
-    // encode
-    .encode()
+program.add_function(FunctionBuilder::default()
+    .name("main")
+    .arity(0)
+    .body(BlockEncoder::default()
+        // Declare a local variable to hold the input
+        .declare_local("n")
+        .push_integer(input)
+        .set_local("n")
+        
+        // Call the fib function
+        .get_local("n")
+        .call_function_by_name("fib")
+        
+        // Return the result
+        .return_value()
+    )
+    .build()
 );
 
-program.add_function(String::from("fib"), 1, BlockEncoder::default()
-
-    // Declare local variables for the Fibonacci function
-    .declare_local("n")
-    
-    // if n <= 1 then return n
-    .get_local("n")
-    .push_integer(1)
-    .less_than_or_equal()
-    .jump_if_false("end")
-    .get_local("n")
-    .return_value()
-    .add_label("end")
-    
-    // fib(n - 1)
-    .push_function_reference("fib")
-    .get_local("n")
-    .push_integer(1)
-    .sub()
-    .function_call(1)
-    
-    // fib(n - 2)
-    .push_function_reference("fib")
-    .get_local("n")
-    .push_integer(2)
-    .sub()
-    .function_call(1)
-    
-    // add the results of fib(n-1) and fib(n-2)
-    .add()
-    
-    // return the result
-    .return_value()
-    
-    // encode
-    .encode()
+program.add_function(FunctionBuilder::default()
+    .name("fib")
+    .arity(1)
+    .body(BlockEncoder::default()
+        // Declare local variables for the Fibonacci function
+        .declare_local("n")
+        
+        // if n <= 1 then return n
+        .get_local("n")
+        .push_integer(1)
+        .less_than_or_equal()
+        .jump_if_false("end")
+        .get_local("n")
+        .return_value()
+        .add_label("end")
+        
+        // fib(n - 1)
+        .get_local("n")
+        .push_integer(1)
+        .sub()
+        .call_function_by_name("fib")
+        
+        // fib(n - 2)
+        .get_local("n")
+        .push_integer(2)
+        .sub()
+        .call_function_by_name("fib")
+        
+        // add the results of fib(n-1) and fib(n-2)
+        .add()
+        
+        // return the result
+        .return_value())
+    .build()
 );
 
 let mut vm = Vm::default();
