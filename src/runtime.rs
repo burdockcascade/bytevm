@@ -6,6 +6,14 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::time::Duration;
 
+macro_rules! runtime_error {
+    ($($arg:tt)*) => {
+        Err(VmError::RuntimeError {
+            message: format!($($arg)*)
+        })
+    };
+}
+
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct VmExecutionResult {
     pub result: Option<Variant>,
@@ -137,9 +145,7 @@ impl Vm {
         loop {
 
             let Some(instruction) = f.instructions.get(pc) else {
-                return Err(VmError::RuntimeError {
-                    message: format!("Invalid instruction pointer {} in function {}", pc, f.name)
-                })
+                return runtime_error!("Invalid instruction pointer {} in function {}", pc, f.name)
             };
             
             trace!("Program Counter: {}", pc);
@@ -169,26 +175,20 @@ impl Vm {
                                                 frame.push_operand(result);
                                             }
                                         },
-                                        None => return Err(VmError::RuntimeError {
-                                            message: format!("Function not found: {}", index)
-                                        })
+                                        None => return runtime_error!("Function not found: {}", index)
                                     };
                                 },
                                 Some(SymbolEntry::NativeFunction { .. }) => {
                                     let func = match self.native_functions.get(name.as_str()) {
                                         Some(func) => func,
-                                        None => return Err(VmError::RuntimeError {
-                                            message: format!("Native function not found: {}", name)
-                                        })
+                                        None => return runtime_error!("Native function not found: {}", name)
                                     };
                                     match func(args) {
                                         Some(value) => frame.push_operand(value),
                                         None => {}
                                     }
                                 }
-                                None => return Err(VmError::RuntimeError {
-                                    message: format!("Function not found: {}", name)
-                                })
+                                None => return runtime_error!("Native function not found: {}", name)
                             }
                         },
                         Variant::FunctionPointer(address) => {
@@ -199,14 +199,10 @@ impl Vm {
                                         frame.push_operand(result);
                                     }
                                 }
-                                None => return Err(VmError::RuntimeError {
-                                    message: format!("Function not found: {}", address)
-                                })
+                                None => return runtime_error!("Function not found: {}", address)
                             }
                         }
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Function call must either be to a global function or a function pointer, but got {:?}", instruction)
-                        })
+                        _ => return runtime_error!("Function call must either be to a global function or a function pointer, but got {:?}", instruction)
                     }
 
                     pc += 1;
@@ -264,14 +260,10 @@ impl Vm {
                             let index: usize = index.into();
                             match array.get(index) {
                                 Some(value) => value.clone(),
-                                None => return Err(VmError::RuntimeError {
-                                    message: "Index out of bounds".to_string()
-                                })
+                                None => return runtime_error!("Array index out of bounds: {} >= {}", index, array.len())
                             }
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
+                        _ => return runtime_error!("Expected an array but got {:?}", array)
                     };
                     frame.push_operand(value);
                     pc += 1;
@@ -287,9 +279,7 @@ impl Vm {
                             let index: usize = index.into();
                             array[index] = value;
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
+                        _ => return runtime_error!("Expected an array but got {:?}", array)
                     }
                     pc += 1;
                 },
@@ -301,9 +291,7 @@ impl Vm {
                             let array = array.borrow();
                             array.len()
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected an array but got {:?}", array)
-                        })
+                        _ => return runtime_error!("Expected an array but got {:?}", array)
                     };
                     frame.push_operand(Variant::Integer(length as i64));
                     pc += 1;
@@ -330,14 +318,10 @@ impl Vm {
                             let table = table.borrow();
                             match table.get(&key) {
                                 Some(value) => value.clone(),
-                                None => return Err(VmError::RuntimeError {
-                                    message: format!("Key not found: {:?}", key)
-                                })
+                                None => return runtime_error!("Dictionary key not found: {:?}", key)
                             }
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     };
                     frame.push_operand(value);
                     pc += 1;
@@ -352,9 +336,7 @@ impl Vm {
                             let mut table = table.borrow_mut();
                             table.insert(key, value);
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     }
                     pc += 1;
                 },
@@ -366,9 +348,7 @@ impl Vm {
                             let table = table.borrow();
                             table.keys().cloned().collect::<Vec<Variant>>()
                         },
-                        _ => return Err(VmError::RuntimeError {
-                            message: format!("Expected a dictionary but got {:?}", table)
-                        })
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     };
                     frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
                     pc += 1;
@@ -520,9 +500,7 @@ impl Vm {
                         Variant::String(message) => Err(VmError::RuntimeError {
                             message: message.clone()
                         }),
-                        _ => Err(VmError::RuntimeError {
-                            message: "Panic message must be a string".to_string()
-                        })
+                        _ => runtime_error!("Expected a string but got {:?}", instruction)
                     };
                 },
 
