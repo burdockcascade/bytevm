@@ -5,23 +5,34 @@ fn test_user_defined_function() {
     
     let mut program = Program::builder();
 
-    program.add_function("main", 1, BlockEncoder::default()
-        .push_function_reference("add")
-        .push_integer(1)
-        .push_integer(2)
-        .function_call(2)
-        .return_value()
-        .encode(),
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(0)
+        .body(
+            BlockEncoder::default()
+                // Call the add function with 1 and 2
+                .push_integer(1)
+                .push_integer(2)
+                .call_function_by_name("add")
+                // Return the result
+                .return_value()
+        )
+        .build()
     );
-    
-    program.add_function("add", 2,  BlockEncoder::default()
-        .declare_local("a")
-        .declare_local("b")
-        .get_local("a")
-        .get_local("b")
-        .add()
-        .return_value()
-        .encode()
+
+    program.add_function(FunctionBuilder::default()
+        .name("add")
+        .arity(2)
+        .body(
+            BlockEncoder::default()
+                .declare_local("a")
+                .declare_local("b")
+                .get_local("a")
+                .get_local("b")
+                .add()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -35,13 +46,19 @@ fn test_user_defined_function() {
 fn test_builtin_function() {
     
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        .push_function_reference("native_add")
-        .push_integer(1)
-        .push_integer(2)
-        .function_call(2)
-        .return_value()
-        .encode(),
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(0)
+        .body(
+            BlockEncoder::default()
+                // Call the add function with 1 and 2
+                .push_integer(1)
+                .push_integer(2)
+                .call_function_by_name("native_add")
+                // Return the result
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();

@@ -8,21 +8,24 @@ fn test_create_dictionary() {
     let key3 = true;
 
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        // Create a dictionary with 3 key-value pairs
-        .push_string(key1.clone())
-        .push_integer(1)
-        .push_integer(key2.clone())
-        .push_integer(2)
-        .push_boolean(key3.clone())
-        .push_integer(3)
-        .create_dictionary(3)
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create a dictionary with 3 key-value pairs
+                .push_string(key1.clone())
+                .push_integer(1)
+                .push_integer(key2)
+                .push_integer(2)
+                .push_boolean(key3)
+                .push_integer(3)
+                .create_dictionary(3)
 
-        // Return the value
-        .return_value()
-
-        // encode the program
-        .encode()
+                // Return the dictionary
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -48,23 +51,26 @@ fn test_get_dictionary_item() {
     let key3 = String::from("key3");
 
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        // Create a dictionary with 3 key-value pairs
-        .push_string(key1.clone())
-        .push_integer(1)
-        .push_string(key2.clone())
-        .push_integer(2)
-        .push_string(key3.clone())
-        .push_integer(3)
-        .create_dictionary(3)
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create a dictionary with 3 key-value pairs
+                .push_string(key1.clone())
+                .push_integer(1)
+                .push_string(key2.clone())
+                .push_integer(2)
+                .push_string(key3.clone())
+                .push_integer(3)
+                .create_dictionary(3)
 
-        // Get the value for key2
-        .push_string(key1)
-        .get_dictionary_item()
-        .return_value()
-
-        // encode the program
-        .encode()
+                // Get the value for key1
+                .push_string(key1)
+                .get_dictionary_item()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -82,22 +88,25 @@ fn test_get_dictionary_keys() {
     let key3 = String::from("key3");
 
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        // Create a dictionary with 3 key-value pairs
-        .push_string(key1.clone())
-        .push_integer(1)
-        .push_string(key2.clone())
-        .push_integer(2)
-        .push_string(key3.clone())
-        .push_integer(3)
-        .create_dictionary(3)
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create a dictionary with 3 key-value pairs
+                .push_string(key1.clone())
+                .push_integer(1)
+                .push_string(key2.clone())
+                .push_integer(2)
+                .push_string(key3.clone())
+                .push_integer(3)
+                .create_dictionary(3)
 
-        // Get the keys of the dictionary
-        .get_dictionary_keys()
-        .return_value()
-
-        // encode the program
-        .encode()
+                // Get the keys of the dictionary
+                .get_dictionary_keys()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();

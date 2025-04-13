@@ -1,4 +1,4 @@
-use crate::program::{Function, SymbolEntry, Instruction, Program};
+use crate::program::{Function, SymbolEntry, Instruction, Program, CallTarget};
 use crate::variant::Variant;
 use log::{debug, trace};
 use std::cell::RefCell;
@@ -157,20 +157,21 @@ impl Vm {
 
                 // Function calls
 
-                Instruction::FunctionCall(arg_count) => {
+                Instruction::FunctionCall(target) => {
 
-                    let mut args = Vec::with_capacity(*arg_count);
-                    for _ in 0..*arg_count {
-                        args.push(frame.pop_operand());
-                    }
-                    args.reverse();
-
-                    match frame.pop_operand() {
-                        Variant::SymbolReference(name) => {
+                    match target {
+                        CallTarget::Name(name) => {
                             match self.symbols.get(name.as_str()) {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
+
+                                            let mut args = Vec::with_capacity(f.arity);
+                                            for _ in 0..f.arity {
+                                                args.push(frame.pop_operand());
+                                            }
+                                            args.reverse();
+
                                             if let Some(result) = self.execute(f, args)?.result {
                                                 frame.push_operand(result);
                                             }
@@ -183,6 +184,13 @@ impl Vm {
                                         Some(func) => func,
                                         None => return runtime_error!("Native function not found: {}", name)
                                     };
+
+                                    let mut args = Vec::with_capacity(f.arity);
+                                    for _ in 0..f.arity {
+                                        args.push(frame.pop_operand());
+                                    }
+                                    args.reverse();
+
                                     match func(args) {
                                         Some(value) => frame.push_operand(value),
                                         None => {}
@@ -191,18 +199,23 @@ impl Vm {
                                 None => return runtime_error!("Native function not found: {}", name)
                             }
                         },
-                        Variant::FunctionPointer(address) => {
-                            // Check if the function is a user-defined function
-                            match self.functions.get(address) {
-                                Some(func) => {
-                                    if let Some(result) = self.execute(func, args)?.result {
+                        CallTarget::Index(index) => {
+                            match self.functions.get(*index) {
+                                Some(f) => {
+
+                                    let mut args = Vec::with_capacity(f.arity);
+                                    for _ in 0..f.arity {
+                                        args.push(frame.pop_operand());
+                                    }
+                                    args.reverse();
+
+                                    if let Some(result) = self.execute(f, args)?.result {
                                         frame.push_operand(result);
                                     }
-                                }
-                                None => return runtime_error!("Function not found: {}", address)
+                                },
+                                None => return runtime_error!("Function not found: {}", index)
                             }
                         }
-                        _ => return runtime_error!("Function call must either be to a global function or a function pointer, but got {:?}", instruction)
                     }
 
                     pc += 1;

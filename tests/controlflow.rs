@@ -4,44 +4,48 @@ use bytevm::prelude::*;
 fn test_jumps() {
 
     let mut program = Program::builder();
-    program.add_function("main", 0, BlockEncoder::default()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(0)
+        .body(
+            BlockEncoder::default()
 
-        // create a variable to hold the result
-        .declare_local("i")
-        .push_integer(0)
-        .set_local("i")
+                // create a variable to hold the result
+                .declare_local("i")
+                .push_integer(0)
+                .set_local("i")
 
-        // create a variable to hold the max value
-        .declare_local("max")
-        .push_integer(10)
-        .set_local("max")
+                // create a variable to hold the max value
+                .declare_local("max")
+                .push_integer(10)
+                .set_local("max")
 
-        // start of the loop
-        .add_label("start")
+                // start of the loop
+                .add_label("start")
 
-        // check if i < max
-        .get_local("i")
-        .get_local("max")
-        .less_than()
-        .jump_if_false("end")
+                // check if i < max
+                .get_local("i")
+                .get_local("max")
+                .less_than()
+                .jump_if_false("end")
 
-        // increment i
-        .get_local("i")
-        .push_integer(1)
-        .add()
-        .set_local("i")
+                // increment i
+                .get_local("i")
+                .push_integer(1)
+                .add()
+                .set_local("i")
 
-        // jump to the start of the loop
-        .jump("start")
+                // jump to the start of the loop
+                .jump("start")
 
-        // end of the loop
-        .add_label("end")
+                // end of the loop
+                .add_label("end")
 
-        // return the result
-        .get_local("i")
-        .return_value()
-
-        .encode()
+                // return the result
+                .get_local("i")
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();

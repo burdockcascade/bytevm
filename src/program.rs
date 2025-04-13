@@ -22,7 +22,7 @@ pub enum Instruction {
     GetDictionaryKeys,
 
     // Functions
-    FunctionCall(usize),
+    FunctionCall(CallTarget),
     Return,
 
     // Stack operations
@@ -63,6 +63,12 @@ pub enum Instruction {
     // End of program
     Halt,
     Panic
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum CallTarget {
+    Name(String),
+    Index(usize)
 }
 
 #[derive(Clone, Debug, PartialEq)]

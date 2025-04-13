@@ -5,13 +5,21 @@ fn test_create_array() {
 
     let mut program = Program::builder();
 
-    program.add_function("main", 1, BlockEncoder::default()
-        .push_integer(1)
-        .push_integer(2)
-        .push_integer(3)
-        .create_array(3)
-        .return_value()
-        .encode()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create an array with 3 elements
+                .push_integer(1)
+                .push_integer(2)
+                .push_integer(3)
+                .create_array(3)
+
+                // Return the array
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -33,18 +41,23 @@ fn test_create_array() {
 fn test_get_array_element() {
 
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        .declare_local("arr")
-        .push_integer(1)
-        .push_integer(2)
-        .push_integer(3)
-        .create_array(3)
-        .set_local("arr")
-        .get_local("arr")
-        .push_integer(1)
-        .get_array_item()
-        .return_value()
-        .encode()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create an array with 3 elements
+                .push_integer(1)
+                .push_integer(2)
+                .push_integer(3)
+                .create_array(3)
+
+                // Return the second element
+                .push_integer(1)
+                .get_array_item()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -58,28 +71,28 @@ fn test_set_array_element() {
 
     let mut program = Program::builder();
 
-    program.add_function("main", 1, BlockEncoder::default()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create an array with 3 elements
+                .push_integer(1)
+                .push_integer(2)
+                .push_integer(3)
+                .create_array(3)
 
-        // Create an array with 3 elements
-        .declare_local("arr")
-        .push_integer(1)
-        .push_integer(2)
-        .push_integer(3)
-        .create_array(3)
-        .set_local("arr")
+                // Set the second element to 4
+                .push_integer(1)
+                .push_integer(4)
+                .set_array_item()
 
-        // Set the second element to 4
-        .get_local("arr")
-        .push_integer(1)
-        .push_integer(4)
-        .set_array_item()
-
-        // Return the second element
-        .get_local("arr")
-        .push_integer(1)
-        .get_array_item()
-        .return_value()
-        .encode()
+                // Return the second element
+                .push_integer(1)
+                .get_array_item()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -91,17 +104,22 @@ fn test_set_array_element() {
 #[test]
 fn test_get_array_length() {
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        .declare_local("arr")
-        .push_integer(1)
-        .push_integer(2)
-        .push_integer(3)
-        .create_array(3)
-        .set_local("arr")
-        .get_local("arr")
-        .get_array_length()
-        .return_value()
-        .encode()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                // Create an array with 3 elements
+                .push_integer(1)
+                .push_integer(2)
+                .push_integer(3)
+                .create_array(3)
+
+                // Get the length of the array
+                .get_array_length()
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();

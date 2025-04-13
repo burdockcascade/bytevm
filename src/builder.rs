@@ -1,4 +1,4 @@
-use crate::program::{Function, Instruction, SymbolEntry};
+use crate::program::{CallTarget, Function, Instruction, SymbolEntry};
 use crate::variant::Variant;
 use std::collections::HashMap;
 use crate::prelude::Program;
@@ -30,6 +30,20 @@ impl ProgramBuilder {
     }
 
     pub fn build(mut self) -> Program {
+
+        //  Resolbe function references with function index
+        for function in &mut self.program.functions {
+            for instruction in &mut function.instructions {
+                if let Instruction::FunctionCall(CallTarget::Name(name)) = instruction {
+                    if let Some(SymbolEntry::UserDefinedFunction { index }) = self.program.symbol_table.get(name) {
+                        *instruction = Instruction::FunctionCall(CallTarget::Index(*index));
+                    } else {
+                        panic!("Function {} not found", name);
+                    }
+                }
+            }
+        }
+
         self.program
     }
 }
@@ -256,8 +270,14 @@ impl BlockEncoder {
         self.push(Instruction::Or)
     }
 
-    pub fn function_call(&mut self, index: usize) -> &mut Self {
-        self.push(Instruction::FunctionCall(index))
+    /// Calls a function by its name and pushes the result onto the stack.
+    pub fn call_function_by_name(&mut self, name: &str) -> &mut Self {
+        self.push(Instruction::FunctionCall(CallTarget::Name(name.to_string())))
+    }
+
+    /// Calls a function by its index and pushes the result onto the stack.
+    pub fn call_function_by_index(&mut self, index: usize) -> &mut Self {
+        self.push(Instruction::FunctionCall(CallTarget::Index(index)))
     }
 
     pub fn create_array(&mut self, size: usize) -> &mut Self {

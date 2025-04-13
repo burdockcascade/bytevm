@@ -3,13 +3,18 @@ use bytevm::prelude::*;
 #[test]
 fn test_get_variable() {
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        .declare_local("a")
-        .push_integer(1)
-        .set_local("a")
-        .get_local("a")
-        .return_value()
-        .encode()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                .declare_local("a")
+                .push_integer(1)
+                .set_local("a")
+                .get_local("a")
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
@@ -23,15 +28,20 @@ fn test_get_variable() {
 #[test]
 fn test_overwrite_local() {
     let mut program = Program::builder();
-    program.add_function("main", 1, BlockEncoder::default()
-        .declare_local("a")
-        .push_integer(1)
-        .set_local("a")
-        .push_integer(2)
-        .set_local("a")
-        .get_local("a")
-        .return_value()
-        .encode()
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                .declare_local("a")
+                .push_integer(1)
+                .set_local("a")
+                .push_integer(2)
+                .set_local("a")
+                .get_local("a")
+                .return_value()
+        )
+        .build()
     );
 
     let mut vm = Vm::default();
