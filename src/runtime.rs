@@ -62,11 +62,10 @@ impl StackFrame {
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Vm {
-    functions: Vec<Function>,
+    functions: Vec<Rc<Function>>,
     symbols: HashMap<String, SymbolEntry>,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
-
 
 impl Vm {
 
@@ -88,46 +87,27 @@ impl Vm {
     }
 
     pub fn run(&mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
+        
+        // use entry point or default to main
+        let entry_point = entry_point.unwrap_or_else(|| String::from("main"));
 
-        let function_index = match entry_point {
-            Some(label) => match self.symbols.get(&label) {
-                Some(symbol) => match symbol {
-                    SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
-                    _ => return Err(VmError::RuntimeError {
-                        message: format!("Entry point is not a function: {}", label)
-                    })
-                },
-                None => return Err(VmError::RuntimeError {
-                    message: format!("Entry point not found: {}", label)
-                })
-            },
-            None => match self.symbols.get("main") {
-                Some(symbol) => match symbol {
-                    SymbolEntry::UserDefinedFunction { index: address, .. } => *address,
-                    _ => return Err(VmError::RuntimeError {
-                        message: "Main function not found".to_string()
-                    })
-                },
-                None => return Err(VmError::RuntimeError {
-                    message: "Main function not found".to_string()
-                })
-            }
+        // Get the function to execute
+        let Some(SymbolEntry::UserDefinedFunction { index, .. }) = self.symbols.get(entry_point.as_str()) else {
+            return runtime_error!("Entry point not found: {}", entry_point)
         };
 
-        let result = match self.functions.get(function_index) {
-            Some(f) => {
-                self.execute(&f, vec![])
-            },
-            None => Err(VmError::RuntimeError {
-                message: format!("Function not found: {}", function_index)
-            })
+        // Get the function
+        let Some(f) = self.functions.get(*index).cloned() else {
+            return runtime_error!("Function not found: {}", index)
         };
 
-        result
+        // Execute the function
+        self.execute(f.clone(), vec![])
+
     }
 
     // Executes a function with the given parameters.
-    fn execute(&self, f: &Function, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
+    fn execute(&self, f: Rc<Function>, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
         
         trace!("=== Executing function: {} ====", f.name);
         trace!("Parameters: {:?}", parameters);
@@ -165,7 +145,7 @@ impl Vm {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
-                                            if let Some(result) = self.execute(f, get_function_call_args(&mut frame, f.arity))?.result {
+                                            if let Some(result) = self.execute(f.clone(), get_function_call_args(&mut frame, f.arity))?.result {
                                                 frame.push_operand(result);
                                             }
                                         },
@@ -188,7 +168,7 @@ impl Vm {
                         CallTarget::Index(index) => {
                             match self.functions.get(*index) {
                                 Some(f) => {
-                                    if let Some(result) = self.execute(f, get_function_call_args(&mut frame, f.arity))?.result {
+                                    if let Some(result) = self.execute(f.clone(), get_function_call_args(&mut frame, f.arity))?.result {
                                         frame.push_operand(result);
                                     }
                                 },
