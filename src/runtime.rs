@@ -165,7 +165,7 @@ impl Vm {
                                 Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                                     match self.functions.get(*index) {
                                         Some(f) => {
-                                            if let Some(result) = self.execute(f, self.get_function_call_args(&mut frame, f.arity))?.result {
+                                            if let Some(result) = self.execute(f, get_function_call_args(&mut frame, f.arity))?.result {
                                                 frame.push_operand(result);
                                             }
                                         },
@@ -177,7 +177,7 @@ impl Vm {
                                         Some(func) => func,
                                         None => return runtime_error!("Native function not found: {}", name)
                                     };
-                                    match func(self.get_function_call_args(&mut frame, *arity)) {
+                                    match func(get_function_call_args(&mut frame, *arity)) {
                                         Some(value) => frame.push_operand(value),
                                         None => {}
                                     }
@@ -188,7 +188,7 @@ impl Vm {
                         CallTarget::Index(index) => {
                             match self.functions.get(*index) {
                                 Some(f) => {
-                                    if let Some(result) = self.execute(f, self.get_function_call_args(&mut frame, f.arity))?.result {
+                                    if let Some(result) = self.execute(f, get_function_call_args(&mut frame, f.arity))?.result {
                                         frame.push_operand(result);
                                     }
                                 },
@@ -509,15 +509,15 @@ impl Vm {
         })
 
     }
-
-    fn get_function_call_args(&self, frame: &mut StackFrame, arity: usize) -> Vec<Variant> {
-        let mut args = Vec::new();
-        for _ in 0..arity {
-            args.push(frame.pop_operand());
-        }
-        args.reverse();
-        args
-    }
     
+}
+
+fn get_function_call_args(frame: &mut StackFrame, arity: usize) -> Vec<Variant> {
+    let mut args = Vec::with_capacity(16);
+    for _ in 0..arity {
+        args.push(frame.pop_operand());
+    }
+    args.reverse();
+    args
 }
 
