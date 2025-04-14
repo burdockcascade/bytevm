@@ -79,5 +79,8 @@ vm.load_program(program.build());
 vm.run(None);
 ```
 
+## Use of AI
+Parts of this project were generated using AI tools.
+
 ## License
 ByteVM is distributed under the terms of the MIT license. See [LICENSE](LICENSE) for details.
