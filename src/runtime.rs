@@ -493,7 +493,7 @@ impl Vm {
 }
 
 fn get_function_call_args(frame: &mut StackFrame, arity: usize) -> Vec<Variant> {
-    let mut args = Vec::with_capacity(16);
+    let mut args = Vec::with_capacity(arity);
     for _ in 0..arity {
         args.push(frame.pop_operand());
     }
