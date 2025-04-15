@@ -434,16 +434,16 @@ impl Vm {
                 },
 
                 Instruction::Or => {
-                    let b = frame.pop_operand();
-                    let a = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(a.into() || b.into()));
+                    let b = frame.pop_operand().into();
+                    let a = frame.pop_operand().into();
+                    frame.push_operand(Variant::Boolean(a || b));
                     pc += 1;
                 },
 
                 Instruction::And => {
-                    let b = frame.pop_operand();
-                    let a = frame.pop_operand();
-                    frame.push_operand(Variant::Boolean(a.into() && b.into()));
+                    let b = frame.pop_operand().into();
+                    let a = frame.pop_operand().into();
+                    frame.push_operand(Variant::Boolean(a && b));
                     pc += 1;
                 },
 
