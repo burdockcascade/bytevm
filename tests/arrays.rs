@@ -53,7 +53,7 @@ fn test_get_array_element() {
                 .create_array(3)
 
                 // Return the second element
-                .push_integer(1)
+                .push_index(1)
                 .get_array_item()
                 .return_value()
         )
@@ -83,12 +83,12 @@ fn test_set_array_element() {
                 .create_array(3)
 
                 // Set the second element to 4
-                .push_integer(1)
+                .push_index(1)
                 .push_integer(4)
                 .set_array_item()
 
                 // Return the second element
-                .push_integer(1)
+                .push_index(1)
                 .get_array_item()
                 .return_value()
         )

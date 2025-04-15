@@ -224,12 +224,17 @@ impl Vm {
                 },
 
                 Instruction::GetArrayItem => {
-                    let index = frame.pop_operand();
+                   
+                    let index = match frame.pop_operand() {
+                        Variant::Index(index) => index,
+                        v => return runtime_error!("Expected an index but got {:?}", v)
+                    };
+                    
                     let array = frame.pop_operand();
                     let value = match array {
                         Variant::Array(array) => {
                             let array = array.borrow();
-                            let index: usize = index.into();
+                            let index: usize = index;
                             match array.get(index) {
                                 Some(value) => value.clone(),
                                 None => return runtime_error!("Array index out of bounds: {} >= {}", index, array.len())
@@ -242,13 +247,19 @@ impl Vm {
                 }
 
                 Instruction::SetArrayItem => {
+
                     let value = frame.pop_operand();
-                    let index = frame.pop_operand();
+                    
+                    let index = match frame.pop_operand() {
+                        Variant::Index(index) => index,
+                        v => return runtime_error!("Expected an index but got {:?}", v)
+                    };
+                    
                     let varray = frame.pop_operand();
                     match varray {
                         Variant::Array(ref array) => {
                             let mut array = array.borrow_mut();
-                            let index: usize = index.into();
+                            let index: usize = index;
                             array[index] = value;
                             frame.push_operand(varray.clone());
                         },

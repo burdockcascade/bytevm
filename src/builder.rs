@@ -182,6 +182,11 @@ impl BlockEncoder {
     pub fn push_null(&mut self) -> &mut Self {
         self.push(Instruction::Push(Variant::Null))
     }
+    
+    /// Push Index onto the stack.
+    pub fn push_index(&mut self, index: usize) -> &mut Self {
+        self.push(Instruction::Push(Variant::Index(index)))
+    }
 
     /// Pushes a symbol reference onto the stack.
     pub fn push_symbol(&mut self, value: &str) -> &mut Self {

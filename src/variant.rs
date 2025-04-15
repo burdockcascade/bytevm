@@ -31,6 +31,9 @@ pub enum Variant {
 
     // Dictionary is a map of Variants
     Dictionary(Rc<RefCell<HashMap<Variant, Variant>>>),
+    
+    // Index is an index into an array
+    Index(usize),
 
 }
 
@@ -53,6 +56,7 @@ impl Display for Variant {
             Variant::Float(fl) => write!(f, "{}", fl),
             Variant::String(s) => write!(f, "{}", s),
             Variant::Boolean(b) => write!(f, "{}", b),
+            Variant::Index(i) => write!(f, "Index({})", i),
             Variant::Array(a) => {
                 let a = a.borrow();
                 write!(f, "[")?;
@@ -187,6 +191,7 @@ impl Hash for Variant {
             Variant::Float(f) => f.to_bits().hash(state),
             Variant::String(s) => s.hash(state),
             Variant::Boolean(b) => b.hash(state),
+            Variant::Index(i) => i.hash(state),
             Variant::Array(a) => {
                 let a = a.borrow();
                 a.len().hash(state);
