@@ -334,7 +334,10 @@ impl Vm {
                 },
 
                 Instruction::JumpIfFalse(address) => {
-                    let value: bool = frame.pop_operand().into();
+                    let Variant::Boolean(value) = frame.pop_operand() else {
+                        return runtime_error!("Expected a boolean but got {:?}", instruction)
+                    };
+                    
                     if !value {
                         pc = *address;
                     } else {
