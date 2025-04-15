@@ -48,13 +48,10 @@ impl StackFrame {
     }
 
     fn get_local(&self, index: usize) -> Variant {
-        self.locals.get(index).cloned().unwrap_or(Variant::Null)
+        self.locals[index].clone()
     }
 
     fn set_local(&mut self, index: usize, value: Variant) {
-        if index >= self.locals.len() {
-            self.locals.resize(index + 1, Variant::Null);
-        }
         self.locals[index] = value;
     }
 
@@ -119,6 +116,9 @@ impl Vm {
             locals: parameters,
             operands: Vec::with_capacity(8),
         };
+
+        // Expand the operand stack to hold the local variables
+        frame.locals.resize(f.local_count, Variant::Null);
 
         let start = std::time::Instant::now();
 
