@@ -2,6 +2,8 @@ use bytevm::prelude::*;
 
 #[test]
 fn test_jumps() {
+    
+    let target = 1_000_000;
 
     let mut program = Program::builder();
     program.add_function(FunctionBuilder::default()
@@ -17,7 +19,7 @@ fn test_jumps() {
 
                 // create a variable to hold the max value
                 .declare_local("max")
-                .push_integer(10)
+                .push_integer(target)
                 .set_local("max")
 
                 // start of the loop
@@ -50,7 +52,8 @@ fn test_jumps() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None).unwrap();
 
-    assert_eq!(result, Variant::Integer(10));
+    assert_eq!(result.result.unwrap(), Variant::Integer(target));
+    println!("Elapsed time: {:?}", result.run_time.as_secs_f64());
 }
