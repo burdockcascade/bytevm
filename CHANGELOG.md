@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/burdockcascade/bytevm/compare/v0.5.0...v0.6.0) (2025-04-19)
+
+
+### Features
+
+* add push_index method and update array operations to use Index variant ([0688371](https://github.com/burdockcascade/bytevm/commit/06883718255a82f43dc9e0131669d263a0719005))
+* refactored to improve performance ([e83d438](https://github.com/burdockcascade/bytevm/commit/e83d43814f7d2231a5e6bc791d0901e1ea912b26))
+
 ## [0.5.0](https://github.com/burdockcascade/bytevm/compare/v0.4.1...v0.5.0) (2025-04-13)
 
 
