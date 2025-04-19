@@ -1,7 +1,6 @@
 use crate::program::{CallTarget, Function, Instruction, SymbolEntry};
 use crate::variant::Variant;
 use std::collections::HashMap;
-use std::rc::Rc;
 use crate::prelude::Program;
 
 #[derive(Clone, Debug, Default)]
@@ -14,13 +13,13 @@ impl ProgramBuilder {
     pub fn add_function(&mut self, function: Function) {
         match self.program.symbol_table.get(&function.name) {
             Some(SymbolEntry::UserDefinedFunction { index }) => {
-                self.program.functions[*index] = Rc::new(function);
+                self.program.functions[*index] = function;
             }
             None => {
                 self.program.symbol_table.insert(function.name.clone(), SymbolEntry::UserDefinedFunction {
                     index: self.program.functions.len()
                 });
-                self.program.functions.push(Rc::new(function));
+                self.program.functions.push(function);
             }
             _ => panic!("Cannot redefine function {}", function.name),
         }

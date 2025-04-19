@@ -248,7 +248,7 @@ impl Sub for Variant {
         match (self, rhs) {
             (Variant::Integer(lhs), Variant::Integer(rhs)) => Variant::Integer(lhs - rhs),
             (Variant::Float(lhs), Variant::Float(rhs)) => Variant::Float(lhs - rhs),
-            _ => panic!("Invalid operands for subtraction")
+            (a, b) => panic!("Invalid operands for subtraction: {} - {}", a, b)
         }
     }
 }

@@ -17,17 +17,17 @@ fn test_jumps() {
                 .push_integer(0)
                 .set_local("i")
 
-                // create a variable to hold the max value
-                .declare_local("max")
+                // create a variable to hold the target value
+                .declare_local("target")
                 .push_integer(target)
-                .set_local("max")
+                .set_local("target")
 
                 // start of the loop
                 .add_label("start")
 
-                // check if i < max
+                // check if i < target
                 .get_local("i")
-                .get_local("max")
+                .get_local("target")
                 .less_than()
                 .jump_if_false("end")
 

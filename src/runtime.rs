@@ -20,6 +20,10 @@ pub struct VmExecutionResult {
     pub run_time: Duration,
 }
 
+struct VmFunctionResult {
+    pub result: Option<Variant>
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum VmError {
     RuntimeError {
@@ -59,7 +63,7 @@ impl StackFrame {
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Vm {
-    functions: Vec<Rc<Function>>,
+    functions: Vec<Function>,
     symbols: HashMap<String, SymbolEntry>,
     native_functions: HashMap<String, fn(Vec<Variant>) -> Option<Variant>>
 }
@@ -85,6 +89,8 @@ impl Vm {
 
     pub fn run(&mut self, entry_point: Option<String>) -> Result<VmExecutionResult, VmError> {
         
+        let timer = std::time::Instant::now();
+        
         // use entry point or default to main
         let entry_point = entry_point.unwrap_or_else(|| String::from("main"));
 
@@ -99,33 +105,34 @@ impl Vm {
         };
 
         // Execute the function
-        self.execute(f.clone(), vec![])
+        let result = self.execute(&f, vec![])?;
+        
+        Ok(VmExecutionResult {
+            result: result.result,
+            run_time: timer.elapsed()
+        })
 
     }
 
     // Executes a function with the given parameters.
-    fn execute(&self, f: Rc<Function>, parameters: Vec<Variant>) -> Result<VmExecutionResult, VmError> {
+    fn execute(&self, func: &Function, parameters: Vec<Variant>) -> Result<VmFunctionResult, VmError> {
         
-        trace!("=== Executing function: {} ====", f.name);
+        trace!("=== Executing function: {} ====", func.name);
         trace!("Parameters: {:?}", parameters);
-        trace!("Instructions: {:?}", f.instructions);
-
-        let mut return_value= None;
+        trace!("Instructions: {:?}", func.instructions);
+        
         let mut pc = 0;
         let mut frame = StackFrame {
             locals: parameters,
             operands: Vec::with_capacity(8),
         };
-
-        // Expand the operand stack to hold the local variables
-        frame.locals.resize(f.local_count, Variant::Null);
-
-        let start = std::time::Instant::now();
+        
+        frame.locals.resize(func.local_count, Variant::Null);
 
         loop {
 
-            let Some(instruction) = f.instructions.get(pc) else {
-                return runtime_error!("Invalid instruction pointer {} in function {}", pc, f.name)
+            let Some(instruction) = func.instructions.get(pc) else {
+                return runtime_error!("Invalid instruction pointer {} in function {}", pc, func.name)
             };
             
             trace!("Program Counter: {}", pc);
@@ -134,66 +141,11 @@ impl Vm {
             trace!("Frame Operands: {:?}", frame.operands);
 
             match instruction {
-
-                // Function calls
-
-                Instruction::FunctionCall(target) => {
-
-                    match target {
-                        CallTarget::Name(name) => {
-                            match self.symbols.get(name.as_str()) {
-                                Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
-                                    match self.functions.get(*index) {
-                                        Some(f) => {
-                                            if let Some(result) = self.execute(f.clone(), get_function_call_args(&mut frame, f.arity))?.result {
-                                                frame.push_operand(result);
-                                            }
-                                        },
-                                        None => return runtime_error!("Function not found: {}", index)
-                                    };
-                                },
-                                Some(SymbolEntry::NativeFunction { arity }) => {
-                                    let func = match self.native_functions.get(name.as_str()) {
-                                        Some(func) => func,
-                                        None => return runtime_error!("Native function not found: {}", name)
-                                    };
-                                    match func(get_function_call_args(&mut frame, *arity)) {
-                                        Some(value) => frame.push_operand(value),
-                                        None => {}
-                                    }
-                                }
-                                None => return runtime_error!("Native function not found: {}", name)
-                            }
-                        },
-                        CallTarget::Index(index) => {
-                            match self.functions.get(*index) {
-                                Some(f) => {
-                                    if let Some(result) = self.execute(f.clone(), get_function_call_args(&mut frame, f.arity))?.result {
-                                        frame.push_operand(result);
-                                    }
-                                },
-                                None => return runtime_error!("Function not found: {}", index)
-                            }
-                        }
-                    }
-
-                    pc += 1;
-                },
-
-                Instruction::Return => {
-                    return_value = frame.operands.pop();
-                    break
-                }
-
+                
                 // Operands
 
                 Instruction::Push(value) => {
                     frame.push_operand(value.clone());
-                    pc += 1;
-                },
-
-                Instruction::Pop => {
-                    frame.pop_operand();
                     pc += 1;
                 },
 
@@ -208,133 +160,6 @@ impl Vm {
                 Instruction::GetLocal(index) => {
                     let value = frame.get_local(*index);
                     frame.push_operand(value);
-                    pc += 1;
-                },
-
-                // Arrays
-
-                Instruction::CreateArray(size) => {
-                    let mut array = Vec::with_capacity(*size);
-                    for _ in 0..*size {
-                        array.push(frame.pop_operand());
-                    }
-                    array.reverse();
-                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(array))));
-                    pc += 1;
-                },
-
-                Instruction::GetArrayItem => {
-                   
-                    let index = match frame.pop_operand() {
-                        Variant::Index(index) => index,
-                        v => return runtime_error!("Expected an index but got {:?}", v)
-                    };
-                    
-                    let array = frame.pop_operand();
-                    let value = match array {
-                        Variant::Array(array) => {
-                            let array = array.borrow();
-                            let index: usize = index;
-                            match array.get(index) {
-                                Some(value) => value.clone(),
-                                None => return runtime_error!("Array index out of bounds: {} >= {}", index, array.len())
-                            }
-                        },
-                        _ => return runtime_error!("Expected an array but got {:?}", array)
-                    };
-                    frame.push_operand(value);
-                    pc += 1;
-                }
-
-                Instruction::SetArrayItem => {
-
-                    let value = frame.pop_operand();
-                    
-                    let index = match frame.pop_operand() {
-                        Variant::Index(index) => index,
-                        v => return runtime_error!("Expected an index but got {:?}", v)
-                    };
-                    
-                    let varray = frame.pop_operand();
-                    match varray {
-                        Variant::Array(ref array) => {
-                            let mut array = array.borrow_mut();
-                            let index: usize = index;
-                            array[index] = value;
-                            frame.push_operand(varray.clone());
-                        },
-                        _ => return runtime_error!("Expected an array but got {:?}", varray)
-                    }
-                    pc += 1;
-                },
-
-                Instruction::GetArrayLength => {
-                    let array = frame.pop_operand();
-                    let length = match array {
-                        Variant::Array(array) => {
-                            let array = array.borrow();
-                            array.len()
-                        },
-                        _ => return runtime_error!("Expected an array but got {:?}", array)
-                    };
-                    frame.push_operand(Variant::Integer(length as i64));
-                    pc += 1;
-                },
-
-                // Dictionaries
-
-                Instruction::CreateDictionary(size) => {
-                    let mut table = HashMap::new();
-                    for _ in 0..*size {
-                        let value = frame.pop_operand();
-                        let key = frame.pop_operand();
-                        table.insert(key, value);
-                    }
-                    frame.push_operand(Variant::Dictionary(Rc::new(RefCell::new(table))));
-                    pc += 1;
-                },
-
-                Instruction::GetDictionaryItem => {
-                    let key = frame.pop_operand();
-                    let table = frame.pop_operand();
-                    let value = match table {
-                        Variant::Dictionary(table) => {
-                            let table = table.borrow();
-                            match table.get(&key) {
-                                Some(value) => value.clone(),
-                                None => return runtime_error!("Dictionary key not found: {:?}", key)
-                            }
-                        },
-                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
-                    };
-                    frame.push_operand(value);
-                    pc += 1;
-                }
-
-                Instruction::SetDictionaryItem => {
-                    let value = frame.pop_operand();
-                    let key = frame.pop_operand();
-                    let table = frame.pop_operand();
-                    match table {
-                        Variant::Dictionary(table) => {
-                            let mut table = table.borrow_mut();
-                            table.insert(key, value);
-                        },
-                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
-                    }
-                    pc += 1;
-                },
-
-                Instruction::GetDictionaryKeys => {
-                    let table = frame.pop_operand();
-                    let keys = match table {
-                        Variant::Dictionary(table) => {
-                            let table = table.borrow();
-                            table.keys().cloned().collect::<Vec<Variant>>()
-                        },
-                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
-                    };
-                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
                     pc += 1;
                 },
 
@@ -470,6 +295,185 @@ impl Vm {
                     pc += 1;
                 },
 
+                // Arrays
+
+                Instruction::CreateArray(size) => {
+                    let mut array = Vec::with_capacity(*size);
+                    for _ in 0..*size {
+                        array.push(frame.pop_operand());
+                    }
+                    array.reverse();
+                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(array))));
+                    pc += 1;
+                },
+
+                Instruction::GetArrayItem => {
+
+                    let index = match frame.pop_operand() {
+                        Variant::Index(index) => index,
+                        v => return runtime_error!("Expected an index but got {:?}", v)
+                    };
+
+                    let array = frame.pop_operand();
+                    let value = match array {
+                        Variant::Array(array) => {
+                            let array = array.borrow();
+                            let index: usize = index;
+                            match array.get(index) {
+                                Some(value) => value.clone(),
+                                None => return runtime_error!("Array index out of bounds: {} >= {}", index, array.len())
+                            }
+                        },
+                        _ => return runtime_error!("Expected an array but got {:?}", array)
+                    };
+                    frame.push_operand(value);
+                    pc += 1;
+                }
+
+                Instruction::SetArrayItem => {
+
+                    let value = frame.pop_operand();
+
+                    let index = match frame.pop_operand() {
+                        Variant::Index(index) => index,
+                        v => return runtime_error!("Expected an index but got {:?}", v)
+                    };
+
+                    let varray = frame.pop_operand();
+                    match varray {
+                        Variant::Array(ref array) => {
+                            let mut array = array.borrow_mut();
+                            let index: usize = index;
+                            array[index] = value;
+                            frame.push_operand(varray.clone());
+                        },
+                        _ => return runtime_error!("Expected an array but got {:?}", varray)
+                    }
+                    pc += 1;
+                },
+
+                Instruction::GetArrayLength => {
+                    let array = frame.pop_operand();
+                    let length = match array {
+                        Variant::Array(array) => {
+                            let array = array.borrow();
+                            array.len()
+                        },
+                        _ => return runtime_error!("Expected an array but got {:?}", array)
+                    };
+                    frame.push_operand(Variant::Integer(length as i64));
+                    pc += 1;
+                },
+
+                // Dictionaries
+
+                Instruction::CreateDictionary(size) => {
+                    let mut table = HashMap::new();
+                    for _ in 0..*size {
+                        let value = frame.pop_operand();
+                        let key = frame.pop_operand();
+                        table.insert(key, value);
+                    }
+                    frame.push_operand(Variant::Dictionary(Rc::new(RefCell::new(table))));
+                    pc += 1;
+                },
+
+                Instruction::GetDictionaryItem => {
+                    let key = frame.pop_operand();
+                    let table = frame.pop_operand();
+                    let value = match table {
+                        Variant::Dictionary(table) => {
+                            let table = table.borrow();
+                            match table.get(&key) {
+                                Some(value) => value.clone(),
+                                None => return runtime_error!("Dictionary key not found: {:?}", key)
+                            }
+                        },
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
+                    };
+                    frame.push_operand(value);
+                    pc += 1;
+                }
+
+                Instruction::SetDictionaryItem => {
+                    let value = frame.pop_operand();
+                    let key = frame.pop_operand();
+                    let table = frame.pop_operand();
+                    match table {
+                        Variant::Dictionary(table) => {
+                            let mut table = table.borrow_mut();
+                            table.insert(key, value);
+                        },
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
+                    }
+                    pc += 1;
+                },
+
+                Instruction::GetDictionaryKeys => {
+                    let table = frame.pop_operand();
+                    let keys = match table {
+                        Variant::Dictionary(table) => {
+                            let table = table.borrow();
+                            table.keys().cloned().collect::<Vec<Variant>>()
+                        },
+                        _ => return runtime_error!("Expected an dictionary but got {:?}", table)
+                    };
+                    frame.push_operand(Variant::Array(Rc::new(RefCell::new(keys))));
+                    pc += 1;
+                },
+
+                // Function calls
+
+                Instruction::FunctionCall(target) => {
+
+                    let function_index = match target {
+                        CallTarget::Name(name) if self.native_functions.contains_key(name) => {
+                            let arity = match self.symbols.get(name.as_str()) {
+                                Some(SymbolEntry::NativeFunction { arity }) => *arity,
+                                _ => return runtime_error!("Native function not found: {}", name)
+                            };
+                            let func = match self.native_functions.get(name.as_str()) {
+                                Some(func) => func,
+                                None => return runtime_error!("Native function not found: {}", name)
+                            };
+                            if let Some(value) = func(get_function_call_args(&mut frame, arity)) {
+                                frame.push_operand(value);
+                            }
+                            pc += 1;
+                            continue;
+                        }
+                        CallTarget::Name(name) => {
+                            // User defined function
+                            match self.symbols.get(name.as_str()) {
+                                Some(SymbolEntry::UserDefinedFunction { index, .. }) => *index,
+                                _ => return runtime_error!("Function not found: {}", name)
+                            }
+                        },
+                        CallTarget::Index(index) => *index
+                    };
+
+                    match self.functions.get(function_index) {
+                        Some(f) => {
+                            if let Some(result) = self.execute(&f, get_function_call_args(&mut frame, f.arity))?.result {
+                                frame.push_operand(result);
+                            }
+                        },
+                        None => return runtime_error!("Function not found: {}", function_index)
+                    };
+
+                    pc += 1;
+                },
+
+                Instruction::Return => {
+                     return Ok(VmFunctionResult {
+                        result: Some(frame.pop_operand())
+                    });
+                }
+
+                Instruction::Pop => {
+                    frame.pop_operand();
+                    pc += 1;
+                },
 
                 // Output
                 Instruction::Print => {
@@ -495,11 +499,10 @@ impl Vm {
 
         }
         
-        trace!("=== Finished executing function: {} ====", f.name);
+        trace!("=== Finished executing function: {} ====", func.name);
 
-        Ok(VmExecutionResult {
-            result: return_value,
-            run_time: start.elapsed()
+        Ok(VmFunctionResult {
+            result: None
         })
 
     }

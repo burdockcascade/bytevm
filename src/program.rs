@@ -1,6 +1,5 @@
 use crate::variant::Variant;
 use std::collections::HashMap;
-use std::rc::Rc;
 use crate::builder::ProgramBuilder;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -102,7 +101,7 @@ pub struct Function {
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Program {
     pub symbol_table: HashMap<String, SymbolEntry>,
-    pub functions: Vec<Rc<Function>>
+    pub functions: Vec<Function>
 }
 
 impl Program {
