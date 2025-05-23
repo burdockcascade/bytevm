@@ -33,7 +33,7 @@ impl ProgramBuilder {
 
         // Resolve function references with function index
         for function in &mut self.program.functions {
-            for instruction in &mut function.instructions.clone() {
+            for instruction in &mut function.instructions {
                 if let Instruction::FunctionCall(CallTarget::Name(name)) = instruction {
                     if let Some(SymbolEntry::UserDefinedFunction { index }) = self.program.symbol_table.get(name) {
                         *instruction = Instruction::FunctionCall(CallTarget::Index(*index));
