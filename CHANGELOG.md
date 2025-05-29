@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/burdockcascade/bytevm/compare/v0.6.0...v0.6.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* fix resolving function name to index ([#8](https://github.com/burdockcascade/bytevm/issues/8)) ([6d6adfd](https://github.com/burdockcascade/bytevm/commit/6d6adfdfc3db04ac2a931d0fba2fa17e4d163a3c))
+
 ## [0.6.0](https://github.com/burdockcascade/bytevm/compare/v0.5.0...v0.6.0) (2025-04-19)
 
 
