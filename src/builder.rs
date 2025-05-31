@@ -321,6 +321,11 @@ impl BlockEncoder {
     pub fn return_value(&mut self) -> &mut Self {
         self.push(Instruction::Return)
     }
+    
+    /// End function execution.
+    pub fn end_function(&mut self) -> &mut Self {
+        self.push(Instruction::EndFunction)
+    }
 
     /// Prints the top of the stack to the console.
     pub fn print(&mut self) -> &mut Self {

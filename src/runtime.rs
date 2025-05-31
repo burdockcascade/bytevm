@@ -469,6 +469,12 @@ impl Vm {
                         result: Some(frame.pop_operand())
                     });
                 }
+                
+                Instruction::EndFunction => {
+                    return Ok(VmFunctionResult {
+                        result: None
+                    });
+                }
 
                 Instruction::Pop => {
                     frame.pop_operand();

@@ -24,6 +24,7 @@ pub enum Instruction {
     // Functions
     FunctionCall(CallTarget),
     Return,
+    EndFunction,
 
     // Stack operations
     Push(Variant),

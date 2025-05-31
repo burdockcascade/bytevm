@@ -43,6 +43,29 @@ fn test_user_defined_function() {
 }
 
 #[test]
+fn test_function_with_no_return_value() {
+
+    let mut program = Program::builder();
+
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(0)
+        .body(
+            BlockEncoder::default()
+                .push_boolean(true)
+                .end_function()
+        )
+        .build()
+    );
+
+    let mut vm = Vm::default();
+    vm.load_program(program.build());
+    let result = vm.run(None).unwrap().result;
+
+    assert_eq!(result, None);
+}
+
+#[test]
 fn test_builtin_function() {
     
     let mut program = Program::builder();
