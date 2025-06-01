@@ -110,7 +110,7 @@ impl Vm {
 
         // Initialize the stack frame
         let mut frame = StackFrame {
-            id: 1,
+            id: 0,
             function: f.clone(),
             pc: 0,
             locals: parameters.unwrap_or_else(|| vec![Variant::Null; f.local_count]),
