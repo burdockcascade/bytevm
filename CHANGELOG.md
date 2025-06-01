@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/burdockcascade/bytevm/compare/v0.6.1...v0.7.0) (2025-06-01)
+
+
+### Features
+
+* add end_function instruction and corresponding test case ([4762fc4](https://github.com/burdockcascade/bytevm/commit/4762fc4299d0eb4722d5bed6e1ca8dba5a61b855))
+
 ## [0.6.1](https://github.com/burdockcascade/bytevm/compare/v0.6.0...v0.6.1) (2025-05-29)
 
 
