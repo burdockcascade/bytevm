@@ -95,13 +95,17 @@ impl Vm {
         let entry_point = entry_point.unwrap_or_else(|| String::from("main"));
 
         // Get the function to execute
-        let Some(SymbolEntry::UserDefinedFunction { index, .. }) = self.symbols.get(entry_point.as_str()) else {
-            return runtime_error!("Entry point not found: {}", entry_point)
-        };
-
-        // Get the function
-        let Some(f) = self.functions.get(*index).cloned() else {
-            return runtime_error!("Function not found: {}", index)
+        let f = match self.symbols.get(entry_point.as_str()) {
+            Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
+                match self.functions.get(*index) {
+                    Some(func) => func.clone(),
+                    None => return runtime_error!("Function not found: {}", entry_point)
+                }
+            },
+            Some(SymbolEntry::NativeFunction { .. }) => {
+                return runtime_error!("Cannot execute native function as entry point: {}", entry_point);
+            },
+            _ => return runtime_error!("Entry point not found: {}", entry_point)
         };
 
         // Initialize the stack frame
