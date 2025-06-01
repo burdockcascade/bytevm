@@ -87,6 +87,8 @@ impl Vm {
         self.symbols.extend(program.symbol_table.into_iter());
     }
 
+    /// Executes the program with the given entry point and parameters. 
+    /// If no entry point is provided, it defaults to "main".
     pub fn run(&mut self, entry_point: Option<String>, parameters: Option<Vec<Variant>>) -> Result<VmExecutionResult, VmError> {
         
         let timer = std::time::Instant::now();
