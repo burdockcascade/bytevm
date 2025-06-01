@@ -37,7 +37,7 @@ fn test_function_call() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let _ = vm.run(None);
+    let _ = vm.run(None, None);
 }
 
 fn bench_fibonacci(c: &mut Criterion) {

@@ -63,7 +63,7 @@ fn fibonacci(input: i64) -> i64 {
     
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    vm.run(None).unwrap().result.unwrap().into()
+    vm.run(None, None).unwrap().result.unwrap().into()
 }
 
 fn bench_fibonacci(c: &mut Criterion) {

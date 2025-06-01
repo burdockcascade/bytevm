@@ -65,7 +65,7 @@ fn test_fib() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap();
+    let result = vm.run(None, None).unwrap();
 
     println!("Time taken: {:?}", result.run_time.as_secs_f64());
     
