@@ -1,7 +1,11 @@
+use log::LevelFilter;
+use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use bytevm::prelude::{BlockEncoder, FunctionBuilder, ProgramBuilder, Vm};
 
 fn main() {
 
+    TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
+    
     let input = 35;
 
     let mut program  = ProgramBuilder::default();
@@ -20,7 +24,7 @@ fn main() {
             .call_function_by_name("fib")
 
             // Return the result
-            .return_value()
+            .end_function()
         )
         .build()
     );
