@@ -4,9 +4,9 @@ use bytevm::prelude::{BlockEncoder, FunctionBuilder, ProgramBuilder, Vm};
 
 fn main() {
 
-    TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
+    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
     
-    let input = 35;
+    let input = 2;
 
     let mut program  = ProgramBuilder::default();
 

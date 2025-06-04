@@ -87,7 +87,7 @@ impl Vm {
         self.symbols.extend(program.symbol_table.into_iter());
     }
 
-    /// Executes the program with the given entry point and parameters. 
+    /// Executes the program with the given entry point and parameters.
     /// If no entry point is provided, it defaults to "main".
     pub fn run(&mut self, entry_point: Option<String>, parameters: Option<Vec<Variant>>) -> Result<VmExecutionResult, VmError> {
         
@@ -118,6 +118,7 @@ impl Vm {
             locals: parameters.unwrap_or_else(|| vec![Variant::Null; f.local_count]),
             operands: Vec::new()
         };
+        frame.locals.resize(f.local_count, Variant::Null);
         
         debug!("Starting execution of function: {}", f.name);
         let mut result = None;
