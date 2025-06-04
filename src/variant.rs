@@ -46,6 +46,7 @@ impl Variant {
             _ => panic!("Invalid operands for exponentiation")
         }
     }
+    
 }
 
 impl Display for Variant {

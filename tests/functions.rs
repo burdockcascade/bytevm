@@ -37,7 +37,7 @@ fn test_user_defined_function() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(3));
 }
@@ -60,7 +60,7 @@ fn test_function_with_no_return_value() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result;
+    let result = vm.run(None, None).unwrap().result;
 
     assert_eq!(result, None);
 }
@@ -92,6 +92,6 @@ fn test_builtin_function() {
         Some(a + b)
     });
 
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(3));
 }

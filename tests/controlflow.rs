@@ -52,7 +52,7 @@ fn test_jumps() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap();
+    let result = vm.run(None, None).unwrap();
 
     assert_eq!(result.result.unwrap(), Variant::Integer(target));
     println!("Elapsed time: {:?}", result.run_time.as_secs_f64());

@@ -30,7 +30,7 @@ fn test_create_dictionary() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     match result {
         Variant::Dictionary(array) => {
@@ -75,7 +75,7 @@ fn test_get_dictionary_item() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(1));
 }
@@ -111,7 +111,7 @@ fn test_get_dictionary_keys() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     // find key1 in result
     match result {
