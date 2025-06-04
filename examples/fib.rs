@@ -4,9 +4,9 @@ use bytevm::prelude::{BlockEncoder, FunctionBuilder, ProgramBuilder, Vm};
 
 fn main() {
 
-    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
+    TermLogger::init(LevelFilter::Info, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
     
-    let input = 2;
+    let input = 35;
 
     let mut program  = ProgramBuilder::default();
 
@@ -24,7 +24,7 @@ fn main() {
             .call_function_by_name("fib")
 
             // Return the result
-            .end_function()
+            .return_value()
         )
         .build()
     );

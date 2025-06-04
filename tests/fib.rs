@@ -1,9 +1,14 @@
+use log::LevelFilter;
+use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use bytevm::prelude::*;
 
 #[test]
 fn test_fib() {
 
-    let input = 10;
+    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
+
+
+    let input = 5;
     let expected_result = fib(input);
 
     let mut program  = ProgramBuilder::default();

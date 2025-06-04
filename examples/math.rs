@@ -31,14 +31,17 @@ fn main() {
             BlockEncoder::default()
                 .declare_local("a")
                 .declare_local("b")
+                .declare_local("result")
                 .get_local("a")
                 .get_local("b")
                 .add()
+                .set_local("result")
+                .get_local("result")
                 .return_value()
         )
         .build()
     );
-    
+
     program.optimize();
 
     let mut vm = Vm::default();
