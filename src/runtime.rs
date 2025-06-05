@@ -79,13 +79,13 @@ impl Vm {
         let frames = &mut Vec::with_capacity(32);
 
         // stack
-        let mut stack = Vec::with_capacity(512);
+        let mut stack = Vec::with_capacity(1024);
         
         // use entry point or default to main
         let entry_point = entry_point.unwrap_or_else(|| String::from("main"));
 
         // Get the function to execute
-        let function_index = match self.symbols.get(entry_point.as_str()) {
+        let mut function_index = match self.symbols.get(entry_point.as_str()) {
             Some(SymbolEntry::UserDefinedFunction { index, .. }) => {
                 match self.functions.get(*index) {
                     Some(_) => *index,
@@ -103,63 +103,62 @@ impl Vm {
             Some(func) => func,
             None => return runtime_error!("Function not found: {}", function_index)
         };
+        stack.resize(current_function.local_count, Variant::Null);
 
         // Initialize the stack frame
-        let mut current_frame = StackFrame {
-            function_index,
-            pc: 0,
-            stack_base_pointer: 0,
-        };
-        stack.resize(current_function.local_count, Variant::Null);
+        let mut pc = 0;
+        let mut stack_base_pointer = 0;
         
         debug!("Starting execution of function: {}", current_function.name);
         let mut result = None;
 
         loop  {
+            
+            trace!("========================================");
+            trace!("Frame[{}]: Stack: {:?}", frames.len(), stack);
+            trace!("Frame[{}]: Base pointer: {}", frames.len(), stack_base_pointer);
+            trace!("Frame[{}]: Local Count: {}", frames.len(), current_function.local_count);
+            trace!("Frame[{}]: Locals: {:?}", frames.len(), &stack[stack_base_pointer .. stack_base_pointer + current_function.local_count]);
+            trace!("Frame[{}]: Operands: {:?}", frames.len(), &stack[stack_base_pointer + current_function.local_count..]);
 
-            let Some(instruction) = current_function.instructions.get(current_frame.pc) else {
-                return runtime_error!("Program counter out of bounds: {} >= {}", current_frame.pc, current_function.instructions.len());
+            let Some(instruction) = current_function.instructions.get(pc) else {
+                debug!("Frame[{}]: Instructions {:?}", frames.len(), current_function.instructions);
+                return runtime_error!("Program counter out of bounds: {} >= {}", pc, current_function.instructions.len());
             };
-
-            // trace!("========================================");
-            // trace!("Frame[{}]: Executing instruction[{}]: {:?}", self.frames.len(), current_frame.pc, instruction);
-            // trace!("Frame[{}]: Stack: {:?}", self.frames.len(), stack);
-            // trace!("Frame[{}]: Base pointer: {}", self.frames.len(), current_frame.stack_base_pointer);
-            // trace!("Frame[{}]: Local Count: {}", self.frames.len(), current_function.local_count);
-            // trace!("Frame[{}]: Locals: {:?}", self.frames.len(), &stack[current_frame.stack_base_pointer .. current_frame.stack_base_pointer + current_function.local_count]);
-            // trace!("Frame[{}]: Operands: {:?}", self.frames.len(), &stack[current_frame.stack_base_pointer + current_function.local_count..]);
-
+            
+            trace!("Frame[{}]: Executing instruction[{}]: {:?}", frames.len(), pc, instruction);
+            
             match instruction {
 
                 // Operands
 
                 Instruction::Push(value) => {
                     stack.push(value.clone());
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Local variables
 
                 Instruction::SetLocal(index) => {
                     let value = stack_pop!(stack);
-                    let variable_index = current_frame.stack_base_pointer + *index;
+                    let variable_index = stack_base_pointer + *index;
                     let stack_len = stack.len();
                     stack.get_mut(variable_index)
                         .expect(format!("Local variable index out of bounds: {} >= {}", variable_index, stack_len).as_str())
                         .clone_from(&value);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GetLocal(index) => {
-                    let value = stack[current_frame.stack_base_pointer + *index].clone();
+                    let value = stack[stack_base_pointer + *index].clone();
                     stack.push(value);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Jump instructions
 
                 Instruction::Jump(address) => {
-                    current_frame.pc = *address;
+                    pc = *address;
                 },
 
                 Instruction::JumpIfFalse(address) => {
@@ -167,9 +166,9 @@ impl Vm {
                     match var {
                         Variant::Boolean(value) => {
                             if !value {
-                                current_frame.pc = *address;
+                                pc = *address;
                             } else {
-                                current_frame.pc += 1;
+                                pc += 1;
                             }
                         },
                         v => return runtime_error!("Expected a boolean but got {:?}", v)
@@ -181,7 +180,7 @@ impl Vm {
 
                 Instruction::FunctionCall(target) => {
 
-                    let function_index = match target {
+                    let next_function_index = match target {
                         CallTarget::Name(name) if self.native_functions.contains_key(name) => {
                             let arity = match self.symbols.get(name.as_str()) {
                                 Some(SymbolEntry::NativeFunction { arity }) => *arity,
@@ -194,7 +193,7 @@ impl Vm {
                             if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
                                 stack.push(value);
                             }
-                            current_frame.pc += 1;
+                            pc += 1;
                             continue;
                         }
                         CallTarget::Name(name) => {
@@ -207,28 +206,30 @@ impl Vm {
                         CallTarget::Index(index) => *index
                     };
 
-                    match self.functions.get(function_index) {
+                    match self.functions.get(next_function_index) {
                         Some(next_function) => {
 
-                            current_frame.pc += 1;
-                            frames.push(current_frame);
+                            pc += 1;
+                            frames.push(StackFrame {
+                                function_index,
+                                pc,
+                                stack_base_pointer
+                            });
 
                             // Update the current function to the next function
                             current_function = next_function;
+                            function_index = next_function_index;
 
                             // Get arguments for the function call
                             let args = get_function_call_args(&mut stack, current_function.arity);
 
                             // Create a new stack frame for the function call
-                            current_frame = StackFrame {
-                                function_index,
-                                pc: 0,
-                                stack_base_pointer: stack.len()
-                            };
+                            pc = 0;
+                            stack_base_pointer = stack.len();
 
                             // Extend the stack with the arguments
                             stack.extend(args);
-                            stack.resize(current_frame.stack_base_pointer + current_function.local_count, Variant::Null);
+                            stack.resize(stack_base_pointer + current_function.local_count, Variant::Null);
                         },
                         None => return runtime_error!("Function not found: {}", function_index)
                     };
@@ -238,14 +239,18 @@ impl Vm {
                     let Some(returning_value) = stack.pop() else {
                         return runtime_error!("Return instruction without value");
                     };
-
+                    
                     if let Some(parent_frame) = frames.pop() {
-                        stack.resize(current_frame.stack_base_pointer, Variant::Null);
-                        current_frame = parent_frame;
+                        
+                        stack.resize(stack_base_pointer, Variant::Null);
+                        
+                        pc = parent_frame.pc;
+                        stack_base_pointer = parent_frame.stack_base_pointer;
+                        
                         stack.push(returning_value);
-                        current_function = match self.functions.get(current_frame.function_index) {
+                        current_function = match self.functions.get(parent_frame.function_index) {
                             Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", current_frame.function_index)
+                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
                         };
                     } else {
                         result = Some(returning_value);
@@ -256,11 +261,12 @@ impl Vm {
                 Instruction::EndFunction => {
                     if let Some(parent_frame) = frames.pop() {
                         debug!("Returning from function {}", current_function.name);
-                        stack.resize(current_frame.stack_base_pointer, Variant::Null);
-                        current_frame = parent_frame;
-                        current_function = match self.functions.get(current_frame.function_index) {
+                        stack.resize(stack_base_pointer, Variant::Null);
+                        pc = parent_frame.pc;
+                        stack_base_pointer = parent_frame.stack_base_pointer;
+                        current_function = match self.functions.get(parent_frame.function_index) {
                             Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", current_frame.function_index)
+                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
                         };
                     } else {
                         break;
@@ -273,42 +279,42 @@ impl Vm {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a + b);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Sub => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a - b);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Mul => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a * b);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Div => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a / b);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Mod => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a % b);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Pow => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(a.pow(&b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Unary Operations
@@ -317,68 +323,68 @@ impl Vm {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a == b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GreaterThan => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a > b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 }
 
                 Instruction::LessThan => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a < b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::LessEqual => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a <= b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GreaterEqual => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a >= b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::NotEqual => {
                     let b = stack_pop!(stack);
                     let a = stack_pop!(stack);
                     stack.push(Variant::Boolean(a != b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Or => {
                     let b = stack_pop!(stack).into();
                     let a = stack_pop!(stack).into();
                     stack.push(Variant::Boolean(a || b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::And => {
                     let b = stack_pop!(stack).into();
                     let a = stack_pop!(stack).into();
                     stack.push(Variant::Boolean(a && b));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Not => {
                     let a = stack_pop!(stack);
                     stack.push(!a);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Negate => {
                     let a = stack_pop!(stack);
                     stack.push(-a);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Arrays
@@ -390,7 +396,7 @@ impl Vm {
                     }
                     array.reverse();
                     stack.push(Variant::Array(Rc::new(RefCell::new(array))));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GetArrayItem => {
@@ -413,7 +419,7 @@ impl Vm {
                         _ => return runtime_error!("Expected an array but got {:?}", array)
                     };
                     stack.push(value);
-                    current_frame.pc += 1;
+                    pc += 1;
                 }
 
                 Instruction::SetArrayItem => {
@@ -435,7 +441,7 @@ impl Vm {
                         },
                         _ => return runtime_error!("Expected an array but got {:?}", varray)
                     }
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GetArrayLength => {
@@ -448,7 +454,7 @@ impl Vm {
                         _ => return runtime_error!("Expected an array but got {:?}", array)
                     };
                     stack.push(Variant::Integer(length as i64));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Dictionaries
@@ -461,7 +467,7 @@ impl Vm {
                         table.insert(key, value);
                     }
                     stack.push(Variant::Dictionary(Rc::new(RefCell::new(table))));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GetDictionaryItem => {
@@ -478,7 +484,7 @@ impl Vm {
                         _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     };
                     stack.push(value);
-                    current_frame.pc += 1;
+                    pc += 1;
                 }
 
                 Instruction::SetDictionaryItem => {
@@ -492,7 +498,7 @@ impl Vm {
                         },
                         _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     }
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::GetDictionaryKeys => {
@@ -505,19 +511,19 @@ impl Vm {
                         _ => return runtime_error!("Expected an dictionary but got {:?}", table)
                     };
                     stack.push(Variant::Array(Rc::new(RefCell::new(keys))));
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Pop => {
                     stack_pop!(stack);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 // Output
                 Instruction::Print => {
                     let value = stack_pop!(stack);
                     println!("{}", value);
-                    current_frame.pc += 1;
+                    pc += 1;
                 },
 
                 Instruction::Halt => {
