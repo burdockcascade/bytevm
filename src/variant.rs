@@ -47,6 +47,17 @@ impl Variant {
         }
     }
     
+    pub fn is_false(&self) -> bool {
+        match self {
+            Variant::Null => true,
+            Variant::Boolean(b) => !b,
+            Variant::Integer(i) => *i == 0,
+            Variant::Float(f) => *f == 0.0,
+            Variant::String(s) => s.is_empty(),
+            _ => false
+        }
+    }
+    
 }
 
 impl Display for Variant {

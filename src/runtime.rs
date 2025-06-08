@@ -158,16 +158,11 @@ impl Vm {
                 },
 
                 Instruction::JumpIfFalse(address) => {
-                    let var = stack_pop!(stack);
-                    match var {
-                        Variant::Boolean(value) => {
-                            if !value {
-                                pc = *address;
-                            } else {
-                                pc += 1;
-                            }
-                        },
-                        v => return runtime_error!("Expected a boolean but got {:?}", v)
+                    let condition = stack_pop!(stack);
+                    if condition.is_false() {
+                        pc = *address;
+                    } else {
+                        pc += 1;
                     }
                 },
 
@@ -448,17 +443,17 @@ impl Vm {
                             }
                         },
                     };
-                    
+
                     // Remember the current function frame
                     frames.push(StackFrame {
                         function_index,
                         pc: pc + 1,
                         stack_base_pointer
                     });
-                    
+
                     // Create a new stack frame for the function call
                     pc = 0;
-                    
+
                     // Set the stack base pointer to the current stack length and include the function's arity
                     stack_base_pointer = stack.len() - self.functions[next_function_index].arity;
 
@@ -467,7 +462,7 @@ impl Vm {
 
                     // Update the current function to the next function
                     function_index = next_function_index;
-  
+
                 },
 
                 Instruction::Return => {
@@ -496,7 +491,7 @@ impl Vm {
                         stack.resize(stack_base_pointer, Variant::Null);
                         pc = parent_frame.pc;
                         stack_base_pointer = parent_frame.stack_base_pointer;
-                        function_index = parent_frame.function_index;   
+                        function_index = parent_frame.function_index;
                     } else {
                         break;
                     }
