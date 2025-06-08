@@ -138,10 +138,7 @@ impl Vm {
                 Instruction::SetLocal(index) => {
                     let value = stack_pop!(stack);
                     let variable_index = stack_base_pointer + *index;
-                    let stack_len = stack.len();
-                    stack.get_mut(variable_index)
-                        .expect(format!("Local variable index out of bounds: {} >= {}", variable_index, stack_len).as_str())
-                        .clone_from(&value);
+                    stack[variable_index] = value;
                     pc += 1;
                 },
 
@@ -466,34 +463,33 @@ impl Vm {
                 },
 
                 Instruction::Return => {
-                    let Some(returning_value) = stack.pop() else {
-                        return runtime_error!("Return instruction without value");
-                    };
-
-                    if let Some(parent_frame) = frames.pop() {
-
-                        stack.resize(stack_base_pointer, Variant::Null);
-
-                        pc = parent_frame.pc;
-                        stack_base_pointer = parent_frame.stack_base_pointer;
-
-                        stack.push(returning_value);
-                        function_index = parent_frame.function_index;
-                    } else {
-                        result = Some(returning_value);
-                        break;
+                    let value = stack.pop().expect("Return value should not be empty");
+                    match frames.pop() {
+                        Some(parent_frame) => {
+                            stack.resize(stack_base_pointer, Variant::Null);
+                            stack.push(value);
+                            pc = parent_frame.pc;
+                            stack_base_pointer = parent_frame.stack_base_pointer;
+                            function_index = parent_frame.function_index;
+                        },
+                        None => {
+                            result = Some(value);
+                            break;
+                        }
                     }
                 }
 
                 Instruction::EndFunction => {
-                    if let Some(parent_frame) = frames.pop() {
-                        debug!("Returning from function {}", self.functions[function_index].name);
-                        stack.resize(stack_base_pointer, Variant::Null);
-                        pc = parent_frame.pc;
-                        stack_base_pointer = parent_frame.stack_base_pointer;
-                        function_index = parent_frame.function_index;
-                    } else {
-                        break;
+                    match frames.pop() {
+                        Some(parent_frame) => {
+                            stack.resize(stack_base_pointer, Variant::Null);
+                            pc = parent_frame.pc;
+                            stack_base_pointer = parent_frame.stack_base_pointer;
+                            function_index = parent_frame.function_index;
+                        },
+                        None => {
+                            break;
+                        }
                     }
                 }
 
