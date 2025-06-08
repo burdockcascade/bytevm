@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/burdockcascade/bytevm/compare/v0.6.1...v0.7.0) (2025-06-08)
+
+
+### Features
+
+* add end_function instruction and corresponding test case ([4762fc4](https://github.com/burdockcascade/bytevm/commit/4762fc4299d0eb4722d5bed6e1ca8dba5a61b855))
+* Refactored instruction execution for increased performance ([#11](https://github.com/burdockcascade/bytevm/issues/11)) ([447e286](https://github.com/burdockcascade/bytevm/commit/447e286805154c1a388cb4ed22b0750284d19bf3))
+
 ## [0.6.1](https://github.com/burdockcascade/bytevm/compare/v0.6.0...v0.6.1) (2025-05-29)
 
 
