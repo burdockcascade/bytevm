@@ -469,6 +469,8 @@ impl Vm {
                             
                             // Create a new stack frame for the function call
                             pc = 0;
+                            
+                            // Set the stack base pointer to the current stack length and include the function's arity
                             stack_base_pointer = stack.len() - next_function.arity;
 
                             // Extend the stack with the arguments
