@@ -42,8 +42,6 @@ fn main() {
         .build()
     );
 
-    program.optimize();
-
     let mut vm = Vm::default();
     vm.load_program(program.build());
     let result = vm.run(None, None).unwrap();
