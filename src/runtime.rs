@@ -99,17 +99,13 @@ impl Vm {
         };
 
         // Initialize the function's local variables
-        let mut current_function = match self.functions.get(function_index) {
-            Some(func) => func,
-            None => return runtime_error!("Function not found: {}", function_index)
-        };
-        stack.resize(current_function.local_count, Variant::Null);
+        stack.resize(self.functions[function_index].local_count, Variant::Null);
 
         // Initialize the stack frame
         let mut pc = 0;
         let mut stack_base_pointer = 0;
         
-        debug!("Starting execution of function: {}", current_function.name);
+        debug!("Starting execution of function: {}", self.functions[function_index].name);
         let mut result = None;
 
         loop  {
@@ -117,13 +113,13 @@ impl Vm {
             // trace!("========================================");
             // trace!("Frame[{}]: Stack: {:?}", frames.len(), stack);
             // trace!("Frame[{}]: Base pointer: {}", frames.len(), stack_base_pointer);
-            // trace!("Frame[{}]: Local Count: {}", frames.len(), current_function.local_count);
-            // trace!("Frame[{}]: Locals: {:?}", frames.len(), &stack[stack_base_pointer .. stack_base_pointer + current_function.local_count]);
-            // trace!("Frame[{}]: Operands: {:?}", frames.len(), &stack[stack_base_pointer + current_function.local_count..]);
+            // trace!("Frame[{}]: Local Count: {}", frames.len(), self.functions[function_index].local_count);
+            // trace!("Frame[{}]: Locals: {:?}", frames.len(), &stack[stack_base_pointer .. stack_base_pointer + self.functions[function_index].local_count]);
+            // trace!("Frame[{}]: Operands: {:?}", frames.len(), &stack[stack_base_pointer + self.functions[function_index].local_count..]);
 
-            let Some(instruction) = current_function.instructions.get(pc) else {
-                // debug!("Frame[{}]: Instructions {:?}", frames.len(), current_function.instructions);
-                return runtime_error!("Program counter out of bounds: {} >= {}", pc, current_function.instructions.len());
+            let Some(instruction) = self.functions[function_index].instructions.get(pc) else {
+                // debug!("Frame[{}]: Instructions {:?}", frames.len(), self.functions[function_index].instructions);
+                return runtime_error!("Program counter out of bounds: {} >= {}", pc, self.functions[function_index].instructions.len());
             };
             
             // trace!("Frame[{}]: Executing instruction[{}]: {:?}", frames.len(), pc, instruction);
@@ -452,32 +448,26 @@ impl Vm {
                             }
                         },
                     };
+                    
+                    // Remember the current function frame
+                    frames.push(StackFrame {
+                        function_index,
+                        pc: pc + 1,
+                        stack_base_pointer
+                    });
+                    
+                    // Create a new stack frame for the function call
+                    pc = 0;
+                    
+                    // Set the stack base pointer to the current stack length and include the function's arity
+                    stack_base_pointer = stack.len() - self.functions[next_function_index].arity;
 
-                    match self.functions.get(next_function_index) {
-                        Some(next_function) => {
+                    // Extend the stack with the arguments
+                    stack.resize(stack_base_pointer + self.functions[next_function_index].local_count, Variant::Null);
 
-                            pc += 1;
-                            frames.push(StackFrame {
-                                function_index,
-                                pc,
-                                stack_base_pointer
-                            });
-
-                            // Update the current function to the next function
-                            current_function = next_function;
-                            function_index = next_function_index;
-                            
-                            // Create a new stack frame for the function call
-                            pc = 0;
-                            
-                            // Set the stack base pointer to the current stack length and include the function's arity
-                            stack_base_pointer = stack.len() - next_function.arity;
-
-                            // Extend the stack with the arguments
-                            stack.resize(stack_base_pointer + current_function.local_count, Variant::Null);
-                        },
-                        None => return runtime_error!("Function not found: {}", function_index)
-                    };
+                    // Update the current function to the next function
+                    function_index = next_function_index;
+  
                 },
 
                 Instruction::Return => {
@@ -493,10 +483,7 @@ impl Vm {
                         stack_base_pointer = parent_frame.stack_base_pointer;
 
                         stack.push(returning_value);
-                        current_function = match self.functions.get(parent_frame.function_index) {
-                            Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
-                        };
+                        function_index = parent_frame.function_index;
                     } else {
                         result = Some(returning_value);
                         break;
@@ -505,14 +492,11 @@ impl Vm {
 
                 Instruction::EndFunction => {
                     if let Some(parent_frame) = frames.pop() {
-                        debug!("Returning from function {}", current_function.name);
+                        debug!("Returning from function {}", self.functions[function_index].name);
                         stack.resize(stack_base_pointer, Variant::Null);
                         pc = parent_frame.pc;
                         stack_base_pointer = parent_frame.stack_base_pointer;
-                        current_function = match self.functions.get(parent_frame.function_index) {
-                            Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
-                        };
+                        function_index = parent_frame.function_index;   
                     } else {
                         break;
                     }
