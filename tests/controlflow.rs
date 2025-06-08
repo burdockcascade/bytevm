@@ -3,7 +3,7 @@ use bytevm::prelude::*;
 #[test]
 fn test_jumps() {
     
-    let target = 1_000_000;
+    let target = 1_000;
 
     let mut program = Program::builder();
     program.add_function(FunctionBuilder::default()

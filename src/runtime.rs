@@ -175,104 +175,6 @@ impl Vm {
                     }
                 },
 
-
-                // Function calls
-
-                Instruction::FunctionCall(target) => {
-
-                    let next_function_index = match target {
-                        CallTarget::Name(name) if self.native_functions.contains_key(name) => {
-                            let arity = match self.symbols.get(name.as_str()) {
-                                Some(SymbolEntry::NativeFunction { arity }) => *arity,
-                                _ => return runtime_error!("Native function not found: {}", name)
-                            };
-                            let func = match self.native_functions.get(name.as_str()) {
-                                Some(func) => func,
-                                None => return runtime_error!("Native function not found: {}", name)
-                            };
-                            if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
-                                stack.push(value);
-                            }
-                            pc += 1;
-                            continue;
-                        }
-                        CallTarget::Name(name) => {
-                            // User defined function
-                            match self.symbols.get(name.as_str()) {
-                                Some(SymbolEntry::UserDefinedFunction { index, .. }) => *index,
-                                _ => return runtime_error!("Function not found: {}", name)
-                            }
-                        },
-                        CallTarget::Index(index) => *index
-                    };
-
-                    match self.functions.get(next_function_index) {
-                        Some(next_function) => {
-
-                            pc += 1;
-                            frames.push(StackFrame {
-                                function_index,
-                                pc,
-                                stack_base_pointer
-                            });
-
-                            // Update the current function to the next function
-                            current_function = next_function;
-                            function_index = next_function_index;
-
-                            // Get arguments for the function call
-                            let args = get_function_call_args(&mut stack, current_function.arity);
-
-                            // Create a new stack frame for the function call
-                            pc = 0;
-                            stack_base_pointer = stack.len();
-
-                            // Extend the stack with the arguments
-                            stack.extend(args);
-                            stack.resize(stack_base_pointer + current_function.local_count, Variant::Null);
-                        },
-                        None => return runtime_error!("Function not found: {}", function_index)
-                    };
-                },
-
-                Instruction::Return => {
-                    let Some(returning_value) = stack.pop() else {
-                        return runtime_error!("Return instruction without value");
-                    };
-                    
-                    if let Some(parent_frame) = frames.pop() {
-                        
-                        stack.resize(stack_base_pointer, Variant::Null);
-                        
-                        pc = parent_frame.pc;
-                        stack_base_pointer = parent_frame.stack_base_pointer;
-                        
-                        stack.push(returning_value);
-                        current_function = match self.functions.get(parent_frame.function_index) {
-                            Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
-                        };
-                    } else {
-                        result = Some(returning_value);
-                        break;
-                    }
-                }
-
-                Instruction::EndFunction => {
-                    if let Some(parent_frame) = frames.pop() {
-                        debug!("Returning from function {}", current_function.name);
-                        stack.resize(stack_base_pointer, Variant::Null);
-                        pc = parent_frame.pc;
-                        stack_base_pointer = parent_frame.stack_base_pointer;
-                        current_function = match self.functions.get(parent_frame.function_index) {
-                            Some(func) => func,
-                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
-                        };
-                    } else {
-                        break;
-                    }
-                }
-
                 // Binary Operations
 
                 Instruction::Add => {
@@ -518,6 +420,103 @@ impl Vm {
                     stack_pop!(stack);
                     pc += 1;
                 },
+
+                // Function calls
+
+                Instruction::FunctionCall(target) => {
+
+                    let next_function_index = match target {
+                        CallTarget::Index(index) => *index,
+                        CallTarget::Name(name) if self.native_functions.contains_key(name) => {
+                            let arity = match self.symbols.get(name.as_str()) {
+                                Some(SymbolEntry::NativeFunction { arity }) => *arity,
+                                _ => return runtime_error!("Native function not found: {}", name)
+                            };
+                            let func = match self.native_functions.get(name.as_str()) {
+                                Some(func) => func,
+                                None => return runtime_error!("Native function not found: {}", name)
+                            };
+                            if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
+                                stack.push(value);
+                            }
+                            pc += 1;
+                            continue;
+                        }
+                        CallTarget::Name(name) => {
+                            // User defined function
+                            match self.symbols.get(name.as_str()) {
+                                Some(SymbolEntry::UserDefinedFunction { index, .. }) => *index,
+                                _ => return runtime_error!("Function not found: {}", name)
+                            }
+                        },
+                    };
+
+                    match self.functions.get(next_function_index) {
+                        Some(next_function) => {
+
+                            pc += 1;
+                            frames.push(StackFrame {
+                                function_index,
+                                pc,
+                                stack_base_pointer
+                            });
+
+                            // Update the current function to the next function
+                            current_function = next_function;
+                            function_index = next_function_index;
+
+                            // Get arguments for the function call
+                            let args = get_function_call_args(&mut stack, current_function.arity);
+
+                            // Create a new stack frame for the function call
+                            pc = 0;
+                            stack_base_pointer = stack.len();
+
+                            // Extend the stack with the arguments
+                            stack.extend(args);
+                            stack.resize(stack_base_pointer + current_function.local_count, Variant::Null);
+                        },
+                        None => return runtime_error!("Function not found: {}", function_index)
+                    };
+                },
+
+                Instruction::Return => {
+                    let Some(returning_value) = stack.pop() else {
+                        return runtime_error!("Return instruction without value");
+                    };
+
+                    if let Some(parent_frame) = frames.pop() {
+
+                        stack.resize(stack_base_pointer, Variant::Null);
+
+                        pc = parent_frame.pc;
+                        stack_base_pointer = parent_frame.stack_base_pointer;
+
+                        stack.push(returning_value);
+                        current_function = match self.functions.get(parent_frame.function_index) {
+                            Some(func) => func,
+                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
+                        };
+                    } else {
+                        result = Some(returning_value);
+                        break;
+                    }
+                }
+
+                Instruction::EndFunction => {
+                    if let Some(parent_frame) = frames.pop() {
+                        debug!("Returning from function {}", current_function.name);
+                        stack.resize(stack_base_pointer, Variant::Null);
+                        pc = parent_frame.pc;
+                        stack_base_pointer = parent_frame.stack_base_pointer;
+                        current_function = match self.functions.get(parent_frame.function_index) {
+                            Some(func) => func,
+                            None => return runtime_error!("Function not found: {}", parent_frame.function_index)
+                        };
+                    } else {
+                        break;
+                    }
+                }
 
                 // Output
                 Instruction::Print => {
