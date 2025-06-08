@@ -436,10 +436,11 @@ impl Vm {
                                 Some(func) => func,
                                 None => return runtime_error!("Native function not found: {}", name)
                             };
-                            // fixme
-                            // if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
-                            //     stack.push(value);
-                            // }
+                            
+                            let args = stack.drain(stack.len() - arity..).collect::<Vec<_>>();
+                            if let Some(value) = func(args) {
+                                stack.push(value);
+                            }
                             pc += 1;
                             continue;
                         }
