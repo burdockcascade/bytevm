@@ -114,19 +114,19 @@ impl Vm {
 
         loop  {
             
-            trace!("========================================");
-            trace!("Frame[{}]: Stack: {:?}", frames.len(), stack);
-            trace!("Frame[{}]: Base pointer: {}", frames.len(), stack_base_pointer);
-            trace!("Frame[{}]: Local Count: {}", frames.len(), current_function.local_count);
-            trace!("Frame[{}]: Locals: {:?}", frames.len(), &stack[stack_base_pointer .. stack_base_pointer + current_function.local_count]);
-            trace!("Frame[{}]: Operands: {:?}", frames.len(), &stack[stack_base_pointer + current_function.local_count..]);
+            // trace!("========================================");
+            // trace!("Frame[{}]: Stack: {:?}", frames.len(), stack);
+            // trace!("Frame[{}]: Base pointer: {}", frames.len(), stack_base_pointer);
+            // trace!("Frame[{}]: Local Count: {}", frames.len(), current_function.local_count);
+            // trace!("Frame[{}]: Locals: {:?}", frames.len(), &stack[stack_base_pointer .. stack_base_pointer + current_function.local_count]);
+            // trace!("Frame[{}]: Operands: {:?}", frames.len(), &stack[stack_base_pointer + current_function.local_count..]);
 
             let Some(instruction) = current_function.instructions.get(pc) else {
-                debug!("Frame[{}]: Instructions {:?}", frames.len(), current_function.instructions);
+                // debug!("Frame[{}]: Instructions {:?}", frames.len(), current_function.instructions);
                 return runtime_error!("Program counter out of bounds: {} >= {}", pc, current_function.instructions.len());
             };
             
-            trace!("Frame[{}]: Executing instruction[{}]: {:?}", frames.len(), pc, instruction);
+            // trace!("Frame[{}]: Executing instruction[{}]: {:?}", frames.len(), pc, instruction);
             
             match instruction {
 
@@ -436,9 +436,10 @@ impl Vm {
                                 Some(func) => func,
                                 None => return runtime_error!("Native function not found: {}", name)
                             };
-                            if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
-                                stack.push(value);
-                            }
+                            // fixme
+                            // if let Some(value) = func(get_function_call_args(&mut stack, arity)) {
+                            //     stack.push(value);
+                            // }
                             pc += 1;
                             continue;
                         }
@@ -464,16 +465,12 @@ impl Vm {
                             // Update the current function to the next function
                             current_function = next_function;
                             function_index = next_function_index;
-
-                            // Get arguments for the function call
-                            let args = get_function_call_args(&mut stack, current_function.arity);
-
+                            
                             // Create a new stack frame for the function call
                             pc = 0;
-                            stack_base_pointer = stack.len();
+                            stack_base_pointer = stack.len() - next_function.arity;
 
                             // Extend the stack with the arguments
-                            stack.extend(args);
                             stack.resize(stack_base_pointer + current_function.local_count, Variant::Null);
                         },
                         None => return runtime_error!("Function not found: {}", function_index)
@@ -545,14 +542,5 @@ impl Vm {
 
     }
     
-}
-
-fn get_function_call_args(stack: &mut Vec<Variant>, arity: usize) -> Vec<Variant> {
-    let mut args = Vec::with_capacity(arity);
-    for _ in 0..arity {
-        args.push(stack_pop!(stack));
-    }
-    args.reverse();
-    args
 }
 
