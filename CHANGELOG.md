@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/burdockcascade/bytevm/compare/v0.7.0...v0.7.1) (2025-06-08)
+
+
+### Bug Fixes
+
+* resolve function names to index on program build ([0c0a2a4](https://github.com/burdockcascade/bytevm/commit/0c0a2a4c11ce20a63357b8f01175f4ee8c9293eb))
+
 ## [0.7.0](https://github.com/burdockcascade/bytevm/compare/v0.6.1...v0.7.0) (2025-06-08)
 
 
