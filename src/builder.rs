@@ -28,8 +28,8 @@ impl ProgramBuilder {
     pub fn add_symbol(&mut self, name: String, entry: SymbolEntry) {
         self.program.symbol_table.insert(name, entry);
     }
-
-    pub fn build(mut self) -> Program {
+    
+    pub fn optimize(&mut self) {
 
         // Resolve function references with function index
         for function in &mut self.program.functions {
@@ -37,11 +37,16 @@ impl ProgramBuilder {
                 if let Instruction::FunctionCall(CallTarget::Name(name)) = instruction {
                     if let Some(SymbolEntry::UserDefinedFunction { index }) = self.program.symbol_table.get(name) {
                         *instruction = Instruction::FunctionCall(CallTarget::Index(*index));
+                    } else {
+                        panic!("Function {} not found", name);
                     }
                 }
             }
         }
+        
+    }
 
+    pub fn build(self) -> Program {
         self.program
     }
 }
@@ -321,7 +326,7 @@ impl BlockEncoder {
     pub fn return_value(&mut self) -> &mut Self {
         self.push(Instruction::Return)
     }
-    
+
     /// End function execution.
     pub fn end_function(&mut self) -> &mut Self {
         self.push(Instruction::EndFunction)

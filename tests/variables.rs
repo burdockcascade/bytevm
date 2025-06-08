@@ -1,7 +1,7 @@
 use bytevm::prelude::*;
 
 #[test]
-fn test_get_variable() {
+fn test_get_arg() {
     let mut program = Program::builder();
     program.add_function(FunctionBuilder::default()
         .name("main")
@@ -19,7 +19,33 @@ fn test_get_variable() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
+
+    assert_eq!(result, Variant::Integer(1));
+
+}
+
+#[test]
+fn test_get_variable() {
+    let mut program = Program::builder();
+    program.add_function(FunctionBuilder::default()
+        .name("main")
+        .arity(1)
+        .body(
+            BlockEncoder::default()
+                .declare_local("a")
+                .declare_local("b")
+                .push_integer(1)
+                .set_local("b")
+                .get_local("b")
+                .return_value()
+        )
+        .build()
+    );
+
+    let mut vm = Vm::default();
+    vm.load_program(program.build());
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(1));
 
@@ -46,7 +72,7 @@ fn test_overwrite_local() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     assert_eq!(result, Variant::Integer(2));
 }

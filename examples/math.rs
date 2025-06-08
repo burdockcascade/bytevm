@@ -1,9 +1,13 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use bytevm::prelude::*;
+use log::LevelFilter;
+use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
+use bytevm::prelude::{BlockEncoder, FunctionBuilder, ProgramBuilder, Vm};
 
-// Your function to benchmark
-fn test_function_call() {
-    let mut program = Program::builder();
+fn main() {
+
+    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Mixed, ColorChoice::Auto).expect("Logger error");
+
+    
+    let mut program  = ProgramBuilder::default();
 
     program.add_function(FunctionBuilder::default()
         .name("main")
@@ -27,22 +31,23 @@ fn test_function_call() {
             BlockEncoder::default()
                 .declare_local("a")
                 .declare_local("b")
+                .declare_local("result")
                 .get_local("a")
                 .get_local("b")
                 .add()
+                .set_local("result")
+                .get_local("result")
                 .return_value()
         )
         .build()
     );
 
+    program.optimize();
+
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let _ = vm.run(None, None);
-}
+    let result = vm.run(None, None).unwrap();
 
-fn bench_fibonacci(c: &mut Criterion) {
-    c.bench_function("function_call", |b| b.iter(|| test_function_call()));
-}
+    println!("Time taken: {:?}", result.run_time.as_secs_f64());
 
-criterion_group!(benches, bench_fibonacci);
-criterion_main!(benches);
+}

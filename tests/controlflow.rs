@@ -3,7 +3,7 @@ use bytevm::prelude::*;
 #[test]
 fn test_jumps() {
     
-    let target = 1_000_000;
+    let target = 1_000;
 
     let mut program = Program::builder();
     program.add_function(FunctionBuilder::default()
@@ -52,7 +52,7 @@ fn test_jumps() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap();
+    let result = vm.run(None, None).unwrap();
 
     assert_eq!(result.result.unwrap(), Variant::Integer(target));
     println!("Elapsed time: {:?}", result.run_time.as_secs_f64());

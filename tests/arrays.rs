@@ -24,7 +24,7 @@ fn test_create_array() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
 
     match result {
         Variant::Array(array) => {
@@ -62,7 +62,7 @@ fn test_get_array_element() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(2));
 }
 
@@ -97,7 +97,7 @@ fn test_set_array_element() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(4));
 }
 
@@ -124,6 +124,6 @@ fn test_get_array_length() {
 
     let mut vm = Vm::default();
     vm.load_program(program.build());
-    let result = vm.run(None).unwrap().result.unwrap();
+    let result = vm.run(None, None).unwrap().result.unwrap();
     assert_eq!(result, Variant::Integer(3));
 }
