@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/burdockcascade/bytevm/compare/v0.7.1...v0.8.0) (2025-08-31)
+
+
+### Features
+
+* expose Function type in the public API ([18c32d8](https://github.com/burdockcascade/bytevm/commit/18c32d8b470fe3aa69cbd188683f833779ff48c4))
+
 ## [0.7.1](https://github.com/burdockcascade/bytevm/compare/v0.7.0...v0.7.1) (2025-06-08)
 
 
